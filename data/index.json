@@ -1,0 +1,39 @@
+{
+  "daily": [
+    {
+      "file": "data/daily/2026-03-26.json",
+      "label": "2026-03-26",
+      "date": "2026-03-26",
+      "article_count": 0
+    },
+    {
+      "file": "data/daily/2026-03-25.json",
+      "label": "2026-03-25",
+      "date": "2026-03-25",
+      "article_count": 0
+    },
+    {
+      "file": "data/daily/2026-03-24.json",
+      "label": "2026-03-24",
+      "date": "2026-03-24",
+      "article_count": 0
+    }
+  ],
+  "weekly": [
+    {
+      "file": "data/weekly/2026-W13.json",
+      "label": "2026-W13",
+      "date": "2026-03-26",
+      "article_count": null
+    }
+  ],
+  "monthly": [
+    {
+      "file": "data/monthly/2026-03.json",
+      "label": "2026-03",
+      "date": "2026-03-26",
+      "article_count": null
+    }
+  ],
+  "last_updated": "2026-03-26T19:31:07.405157Z"
+}

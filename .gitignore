@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+*.env
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+.vercel/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Do NOT ignore data/ — it is the GitOps storage layer
+# data/  ← intentionally tracked

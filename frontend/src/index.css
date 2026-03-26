@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { @apply border-slate-700; }
+  body { @apply bg-slate-950 text-slate-100; }
+  ::selection { @apply bg-brand-500/30 text-white; }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme(colors.slate.700) transparent;
+  }
+  .prose-ai {
+    @apply prose prose-invert prose-sm max-w-none
+      prose-headings:text-slate-100 prose-headings:font-semibold
+      prose-p:text-slate-300 prose-p:leading-relaxed
+      prose-li:text-slate-300
+      prose-strong:text-slate-100 prose-strong:font-semibold
+      prose-a:text-brand-400 prose-a:no-underline hover:prose-a:underline
+      prose-code:text-fuchsia-400 prose-code:bg-fuchsia-950/40 prose-code:rounded
+      prose-hr:border-slate-700
+      prose-blockquote:border-brand-500 prose-blockquote:text-slate-400;
+  }
+}

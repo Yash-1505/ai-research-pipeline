@@ -1,0 +1,25 @@
+{
+  "buildCommand": "cd frontend && npm ci && npm run build",
+  "outputDirectory": "frontend/dist",
+  "installCommand": "echo 'skip root install'",
+  "framework": null,
+  "rewrites": [
+    { "source": "/((?!data/).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/data/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=300, stale-while-revalidate=60" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options",        "value": "DENY" },
+        { "key": "Referrer-Policy",         "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}

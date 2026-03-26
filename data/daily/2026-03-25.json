@@ -1,0 +1,9 @@
+{
+  "type": "daily",
+  "date": "2026-03-25",
+  "generated_at": "2026-03-25T07:00:00Z",
+  "article_count": 0,
+  "sources": [],
+  "summary": "## \ud83d\udd11 Executive Summary\n\n- This is a **placeholder digest** \u2014 the real pipeline has not run yet.\n- Add your `GEMINI_API_KEY` to GitHub Secrets and trigger the workflow.\n- Once the GitHub Action runs, this file will be replaced with live AI summaries.\n- Check the README for full setup instructions.\n\n## \ud83d\ude80 Top Stories\n\n### Pipeline not yet activated\nRun the GitHub Action manually via **Actions \u2192 AI Research Pipeline \u2192 Run workflow** to generate your first real digest.\n\n## \ud83e\udde0 Key Trends & Signals\n\n- RSS scraping: \u2705 configured\n- Gemini 1.5 Flash summarisation: \u23f3 awaiting API key\n- GitOps data storage: \u2705 ready\n- Vercel deployment: \u2705 deployed\n\n## \u26a1 Action Items\n\n1. Go to **Settings \u2192 Secrets \u2192 Actions** in your GitHub repo\n2. Add secret `GEMINI_API_KEY` with your Gemini API key\n3. Trigger the workflow manually to generate your first digest\n",
+  "articles": []
+}
