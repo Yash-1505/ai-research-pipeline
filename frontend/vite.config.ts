@@ -1,10 +1,10 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { resolve } from "path";
 
 export default defineConfig({
   plugins: [react()],
-  // Make the /data folder (from repo root) available as static assets
-  publicDir: "../data",
+  publicDir: resolve(__dirname, "../data"),
   build: {
     outDir: "dist",
     emptyOutDir: true,
