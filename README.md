@@ -1,11 +1,11 @@
 # 🤖 Zero-Cost AI Research Pipeline
 
-An automated system that scrapes top AI/Tech newsletters, summarises them with **Gemini 1.5 Flash** (free tier), stores results as JSON in this repo via **GitOps**, and displays them on a **React dashboard** hosted on **Vercel** — for **$0/month**.
+An automated system that scrapes top AI/Tech newsletters, summarises them with **Gemini 2.0 Flash** (free tier), stores results as JSON in this repo via **GitOps**, and displays them on a **React dashboard** hosted on **Vercel** — for **$0/month**.
 
 ```
 GitHub Actions (cron)
   └─► Python scraper (feedparser)
-        └─► Gemini 1.5 Flash API
+        └─► Gemini 2.0 Flash API
               └─► data/ JSON files (committed to repo)
                     └─► Vercel (static site) ◄── React dashboard
 ```
@@ -154,7 +154,7 @@ Any valid RSS or Atom feed works with `feedparser`.
 | Component          | Service                | Cost      |
 |--------------------|------------------------|-----------|
 | Scraping & AI logic | GitHub Actions         | **$0**   |
-| LLM summarisation  | Gemini 1.5 Flash       | **$0**   |
+| LLM summarisation  | Gemini 2.0 Flash       | **$0**   |
 | Data storage       | GitHub repo (`data/`)  | **$0**   |
 | Frontend hosting   | Vercel Hobby           | **$0**   |
 | **Total**          |                        | **$0/mo** |

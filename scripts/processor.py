@@ -67,7 +67,7 @@ def parse_date(entry) -> str:
     for attr in ("published_parsed", "updated_parsed"):
         t = getattr(entry, attr, None)
         if t:
-            return date(*t[:3]).isoformat()
+            return date(*t[:3]).strftime('%d-%m-%Y')
     return date.today().strftime('%d-%m-%Y')
 
 
@@ -374,7 +374,7 @@ def write_index() -> None:
 
 def run_daily(api_key: str) -> None:
     today = date.today()
-    target = today.isoformat()
+    target = today.strftime('%d-%m-%Y')
     log.info("=== DAILY MODE: %s ===", target)
 
     feeds = json.loads(FEEDS_FILE.read_text())
@@ -401,7 +401,7 @@ def run_weekly(api_key: str) -> None:
     log.info("=== WEEKLY MODE: %s ===", week_label)
 
     # Collect daily files for the past 7 days
-    daily_dates = [(monday + timedelta(days=i)).isoformat() for i in range(7)]
+    daily_dates = [(monday + timedelta(days=i)).strftime('%d-%m-%Y') for i in range(7)]
     daily_files = [DATA_DIR / "daily" / f"{d}.json" for d in daily_dates
                    if (DATA_DIR / "daily" / f"{d}.json").exists()]
 
