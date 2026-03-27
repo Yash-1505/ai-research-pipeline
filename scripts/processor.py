@@ -22,7 +22,6 @@ from pathlib import Path
 from typing import Any
 
 import feedparser
-import google.generativeai as genai
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging.basicConfig(
