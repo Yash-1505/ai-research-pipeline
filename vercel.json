@@ -1,14 +1,14 @@
 {
-  "buildCommand": "cd frontend && npm ci && npm run build && cp -r ../data/daily dist/ && cp -r ../data/weekly dist/ && cp -r ../data/monthly dist/ && cp ../data/index.json dist/",
-  "outputDirectory": "frontend/dist",
-  "installCommand": "echo 'skip root install'",
-  "framework": null,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm ci",
+  "framework": "vite",
   "rewrites": [
-    { "source": "/((?!data/).*)", "destination": "/index.html" }
+    { "source": "/((?!daily|weekly|monthly|index.json).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
-      "source": "/data/(.*)",
+      "source": "/(daily|weekly|monthly)/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=300, stale-while-revalidate=60" }
       ]
