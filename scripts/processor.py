@@ -68,7 +68,7 @@ def parse_date(entry) -> str:
         t = getattr(entry, attr, None)
         if t:
             return date(*t[:3]).isoformat()
-    return date.today().isoformat()
+    return date.today().strftime('%d-%m-%Y')
 
 
 def entry_text(entry) -> str:
