@@ -50,8 +50,8 @@ jobs:
         uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.11"
-          cache: "pip"
-          cache-dependency-path: scripts/requirements.txt
+          
+          
 
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
@@ -90,8 +90,8 @@ jobs:
         uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.11"
-          cache: "pip"
-          cache-dependency-path: scripts/requirements.txt
+          
+          
 
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
@@ -130,8 +130,8 @@ jobs:
         uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.11"
-          cache: "pip"
-          cache-dependency-path: scripts/requirements.txt
+          
+          
 
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
