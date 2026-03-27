@@ -212,26 +212,23 @@ def build_monthly_prompt(weekly_files: list[Path]) -> str:
 
 
 def call_gemini(prompt: str, api_key: str) -> str:
-    """Call Gemini 1.5 Flash with retry on 429."""
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel(GEMINI_MODEL)
-
+    """Call Gemini 2.0 Flash via REST API directly."""
+    import requests as req
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta/models/"
+        "gemini-2.0-flash:generateContent"
+        f"?key={api_key}"
+    )
+    body = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {"temperature": 0.3, "maxOutputTokens": 4096},
+    }
     for attempt in range(1, 4):
         try:
-            response = model.generate_content(
-                prompt,
-                generation_config=genai.GenerationConfig(
-                    temperature=0.3,
-                    max_output_tokens=4096,
-                ),
-                safety_settings=[
-                    {"category": "HARM_CATEGORY_HARASSMENT",        "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_HATE_SPEECH",       "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-                ],
-            )
-            return response.text
+            r = req.post(url, json=body, timeout=120)
+            r.raise_for_status()
+            data = r.json()
+            return data["candidates"][0]["content"]["parts"][0]["text"]
         except Exception as exc:
             log.warning("Gemini attempt %d failed: %s", attempt, exc)
             if attempt < 3:
