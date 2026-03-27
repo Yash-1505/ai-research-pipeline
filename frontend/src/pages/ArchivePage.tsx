@@ -53,7 +53,7 @@ export default function ArchivePage() {
                       )}
                     >
                       <span className="font-medium">
-                        {format(parseISO(item.date), "EEE, MMM d")}
+                        {item.date}
                       </span>
                       {item.article_count != null && (
                         <span className="ml-2 text-xs text-slate-600">
