@@ -304,6 +304,8 @@ def write_daily(summary: str, articles: list[dict], target_date: str) -> None:
     }
     out_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
     log.info("Written: %s", out_file)
+    md_file = out_dir / f"{target_date}.md"
+    md_file.write_text(f"# Daily Digest — {target_date}\n\n{summary}\n", encoding="utf-8")
 
 
 def write_weekly(summary: str, week_label: str, daily_dates: list[str]) -> None:
@@ -320,6 +322,10 @@ def write_weekly(summary: str, week_label: str, daily_dates: list[str]) -> None:
     }
     out_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
     log.info("Written: %s", out_file)
+    md_file = out_dir / f"{week_label}.md"
+    md_file.write_text(f"# Weekly Digest - {week_label}\n\n{summary}\n", encoding="utf-8")
+    md_file = out_dir / f"{target_date}.md"
+    md_file.write_text(f"# Daily Digest — {target_date}\n\n{summary}\n", encoding="utf-8")
 
 
 def write_monthly(summary: str, month_label: str, weekly_labels: list[str]) -> None:
@@ -336,6 +342,10 @@ def write_monthly(summary: str, month_label: str, weekly_labels: list[str]) -> N
     }
     out_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
     log.info("Written: %s", out_file)
+    md_file = out_dir / f"{month_label}.md"
+    md_file.write_text(f"# Monthly Report - {month_label}\n\n{summary}\n", encoding="utf-8")
+    md_file = out_dir / f"{target_date}.md"
+    md_file.write_text(f"# Daily Digest — {target_date}\n\n{summary}\n", encoding="utf-8")
 
 
 def write_index() -> None:
@@ -467,3 +477,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
