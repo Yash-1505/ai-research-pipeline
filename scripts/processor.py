@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
-Zero-Cost AI Research Pipeline — processor.py
+Zero-Cost AI Research Pipeline â€” processor.py
 Scrapes RSS feeds, deduplicates, and summarizes with Gemini 1.5 Flash.
 
 Usage:
@@ -23,7 +23,7 @@ from typing import Any
 
 import feedparser
 
-# ── Logging ──────────────────────────────────────────────────────────────────
+# â”€â”€ Logging â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -31,23 +31,23 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# ── Constants ─────────────────────────────────────────────────────────────────
+# â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 REPO_ROOT   = Path(__file__).parent.parent
 DATA_DIR    = REPO_ROOT / "data"
 SCRIPTS_DIR = Path(__file__).parent
 SEEN_FILE   = DATA_DIR / "seen_hashes.json"
 FEEDS_FILE  = SCRIPTS_DIR / "feeds.json"
 
-# Gemini rate-limit guard — free tier is 15 RPM / 1M TPM
+# Gemini rate-limit guard â€” free tier is 15 RPM / 1M TPM
 GEMINI_MODEL   = "gemini-2.5-flash"
 MAX_CHARS_BATCH = 80_000   # ~20k tokens; safe per-request ceiling
 RETRY_DELAY_S   = 65       # Wait 65s between batches to respect RPM
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def load_seen_hashes() -> set[str]:
     if SEEN_FILE.exists():
-        return set(json.loads(SEEN_FILE.read_text()))
+        return set(json.loads(SEEN_FILE.read_text(encoding="utf-8-sig")))
     return set()
 
 
@@ -84,11 +84,11 @@ def entry_text(entry) -> str:
     return content[:3000]  # cap per article
 
 
-# ── Scraping ──────────────────────────────────────────────────────────────────
+# â”€â”€ Scraping â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def scrape_feeds(feeds: list[dict], since_date: date) -> list[dict]:
     """
-    Scrape all feeds, filter articles published ≥ since_date, deduplicate.
+    Scrape all feeds, filter articles published â‰¥ since_date, deduplicate.
     Returns list of article dicts.
     """
     seen = load_seen_hashes()
@@ -143,17 +143,17 @@ def scrape_feeds(feeds: list[dict], since_date: date) -> list[dict]:
 
     save_seen_hashes(seen)
 
-# ── Gemini Summarization ──────────────────────────────────────────────────────
+# â”€â”€ Gemini Summarization â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def build_daily_prompt(articles: list[dict], target_date: str) -> str:
     lines = [
         f"You are a CTO-level AI research analyst. Today is {target_date}.",
         "Below are raw articles scraped from top AI/Tech newsletters.",
         "Your task: produce a DAILY BRIEFING in clean Markdown with these sections:\n",
-        "## 🔑 Executive Summary  (3-5 bullets, each ≤ 25 words)\n",
-        "## 🚀 Top Stories  (top 5–8 stories, each with: ### Title, 2-sentence summary, source, link)\n",
-        "## 🧠 Key Trends & Signals  (bullet list of emerging patterns CTO should track)\n",
-        "## ⚡ Action Items  (what an AI-focused team should do/consider this week)\n",
+        "## ðŸ”‘ Executive Summary  (3-5 bullets, each â‰¤ 25 words)\n",
+        "## ðŸš€ Top Stories  (top 5â€“8 stories, each with: ### Title, 2-sentence summary, source, link)\n",
+        "## ðŸ§  Key Trends & Signals  (bullet list of emerging patterns CTO should track)\n",
+        "## âš¡ Action Items  (what an AI-focused team should do/consider this week)\n",
         "Rules: No fluff. No repeated information. Prioritise research breakthroughs, model releases, and business-critical AI news. Skip pure marketing puff.\n",
         "---\nARTICLES:\n",
     ]
@@ -174,12 +174,12 @@ def build_weekly_prompt(daily_files: list[Path]) -> str:
         "You are a CTO-level AI research analyst. Synthesise the following 7 DAILY BRIEFINGS into a "
         "WEEKLY DIGEST in clean Markdown.\n\n"
         "Required sections:\n"
-        "## 📅 Week in Review  (top headline: 1 sentence)\n"
-        "## 🏆 Biggest Stories of the Week  (5–10, deduplicated)\n"
-        "## 📈 Trend Analysis  (patterns that appeared multiple days — what's accelerating?)\n"
-        "## 🔬 Research Highlights  (notable papers/releases worth deep-reading)\n"
-        "## 💼 Business & Industry Moves  (funding, acquisitions, partnerships)\n"
-        "## 🗓️ What to Watch Next Week\n\n"
+        "## ðŸ“… Week in Review  (top headline: 1 sentence)\n"
+        "## ðŸ† Biggest Stories of the Week  (5â€“10, deduplicated)\n"
+        "## ðŸ“ˆ Trend Analysis  (patterns that appeared multiple days â€” what's accelerating?)\n"
+        "## ðŸ”¬ Research Highlights  (notable papers/releases worth deep-reading)\n"
+        "## ðŸ’¼ Business & Industry Moves  (funding, acquisitions, partnerships)\n"
+        "## ðŸ—“ï¸ What to Watch Next Week\n\n"
         "Rules: No repetition across sections. Merge duplicate stories into single entries. Be concise and CTO-appropriate.\n\n"
         "---\nDAILY SUMMARIES:\n\n" + "\n\n".join(combined)
     )
@@ -195,13 +195,13 @@ def build_monthly_prompt(weekly_files: list[Path]) -> str:
         "You are a CTO-level AI research analyst. Synthesise the following WEEKLY DIGESTS into a "
         "MONTHLY EXECUTIVE REPORT in clean Markdown.\n\n"
         "Required sections:\n"
-        "## 📊 Month at a Glance  (3–5 bullet TL;DR)\n"
-        "## 🎯 Major Milestones  (top 10 most important events/releases of the month)\n"
-        "## 📈 Macro Trends  (3–5 persistent trends; rate each: Accelerating / Stable / Slowing)\n"
-        "## 🔬 Research Landscape  (notable papers, model releases, benchmark shifts)\n"
-        "## 💰 Industry & Investment  (funding rounds, M&A, big-tech moves)\n"
-        "## ⚠️ Risks & Watch List  (emerging risks, regulatory signals, controversial developments)\n"
-        "## 📋 Strategic Recommendations  (what an AI-focused company should prioritise next month)\n\n"
+        "## ðŸ“Š Month at a Glance  (3â€“5 bullet TL;DR)\n"
+        "## ðŸŽ¯ Major Milestones  (top 10 most important events/releases of the month)\n"
+        "## ðŸ“ˆ Macro Trends  (3â€“5 persistent trends; rate each: Accelerating / Stable / Slowing)\n"
+        "## ðŸ”¬ Research Landscape  (notable papers, model releases, benchmark shifts)\n"
+        "## ðŸ’° Industry & Investment  (funding rounds, M&A, big-tech moves)\n"
+        "## âš ï¸ Risks & Watch List  (emerging risks, regulatory signals, controversial developments)\n"
+        "## ðŸ“‹ Strategic Recommendations  (what an AI-focused company should prioritise next month)\n\n"
         "Rules: Executive-level prose. No duplication. Cite sources where known. Be analytical, not journalistic.\n\n"
         "---\nWEEKLY DIGESTS:\n\n" + "\n\n".join(combined)
     )
@@ -254,24 +254,24 @@ def batch_and_summarise(articles: list[dict], api_key: str, target_date: str) ->
     if not batches:
         return "No new articles found for this period."
 
-    log.info("Processing %d batch(es) through Gemini…", len(batches))
+    log.info("Processing %d batch(es) through Geminiâ€¦", len(batches))
     summaries: list[str] = []
 
     for i, batch in enumerate(batches, 1):
-        log.info("Batch %d/%d (%d articles)…", i, len(batches), len(batch))
+        log.info("Batch %d/%d (%d articles)â€¦", i, len(batches), len(batch))
         prompt  = build_daily_prompt(batch, target_date)
         result  = call_gemini(prompt, api_key)
         summaries.append(result)
 
         if i < len(batches):
-            log.info("Rate-limit pause %ds…", RETRY_DELAY_S)
+            log.info("Rate-limit pause %dsâ€¦", RETRY_DELAY_S)
             time.sleep(RETRY_DELAY_S)
 
     if len(summaries) == 1:
         return summaries[0]
 
     # Merge multi-batch summaries with a second Gemini call
-    log.info("Merging %d partial summaries…", len(summaries))
+    log.info("Merging %d partial summariesâ€¦", len(summaries))
     merge_prompt = (
         "You are a CTO-level AI research analyst. Merge and deduplicate the following partial daily briefings "
         "into ONE cohesive DAILY BRIEFING. Keep all sections (Executive Summary, Top Stories, Key Trends, "
@@ -281,7 +281,7 @@ def batch_and_summarise(articles: list[dict], api_key: str, target_date: str) ->
     return call_gemini(merge_prompt, api_key)
 
 
-# ── Output Writers ────────────────────────────────────────────────────────────
+# â”€â”€ Output Writers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def write_daily(summary: str, articles: list[dict], target_date: str) -> None:
     out_dir = DATA_DIR / "daily"
@@ -367,7 +367,7 @@ def write_index() -> None:
     log.info("Index updated: %s", index_file)
 
 
-# ── Modes ─────────────────────────────────────────────────────────────────────
+# â”€â”€ Modes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def run_daily(api_key: str) -> None:
     today = date.today()
@@ -404,7 +404,7 @@ def run_weekly(api_key: str) -> None:
 
     if not daily_files:
         # Fallback: scrape directly for the whole week
-        log.info("No daily files found; scraping week directly…")
+        log.info("No daily files found; scraping week directlyâ€¦")
         feeds    = json.loads(FEEDS_FILE.read_text())
         articles = scrape_feeds(feeds, monday)
         summary  = batch_and_summarise(articles, api_key, week_label)
@@ -421,12 +421,12 @@ def run_monthly(api_key: str) -> None:
     month_label = today.strftime("%Y-%m")
     log.info("=== MONTHLY MODE: %s ===", month_label)
 
-    # Collect weekly files for the past 4–5 weeks
+    # Collect weekly files for the past 4â€“5 weeks
     weekly_files = sorted((DATA_DIR / "weekly").glob("*.json"), reverse=True)[:5]
 
     if not weekly_files:
         # Fallback: scrape entire month
-        log.info("No weekly files found; scraping month directly…")
+        log.info("No weekly files found; scraping month directlyâ€¦")
         feeds      = json.loads(FEEDS_FILE.read_text())
         month_start = date(today.year, today.month, 1)
         articles   = scrape_feeds(feeds, month_start)
@@ -439,7 +439,7 @@ def run_monthly(api_key: str) -> None:
     write_index()
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# â”€â”€ Entry point â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="AI Research Pipeline Processor")
@@ -470,3 +470,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
