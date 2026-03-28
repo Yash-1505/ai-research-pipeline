@@ -142,6 +142,8 @@ def scrape_feeds(feeds: list[dict], since_date: date) -> list[dict]:
             })
 
     save_seen_hashes(seen)
+    log.info("Scraped %d new articles since %s", len(articles), since_date)
+    return articles
 
 # â”€â”€ Gemini Summarization â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -470,4 +472,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 
