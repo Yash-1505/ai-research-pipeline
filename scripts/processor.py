@@ -142,9 +142,7 @@ def scrape_feeds(feeds: list[dict], since_date: date) -> list[dict]:
             })
 
     save_seen_hashes(seen)
-    articles = articles[:30]`n    log.info("Scraped %d new articles since %s", len(articles), since_date)
-    return articles
-
+    articles = articles[:30]`n    
 
 # ── Gemini Summarization ──────────────────────────────────────────────────────
 
