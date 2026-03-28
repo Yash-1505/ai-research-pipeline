@@ -70,8 +70,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
           git diff --staged --quiet || git commit -m "chore(data): daily digest $(date -u +%Y-%m-%d)"
-          git pull --rebase origin main || true
-          git push
+          git push --force-with-lease
 
   # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   # JOB 2 â€” Weekly digest (runs every Monday)
@@ -111,8 +110,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
           git diff --staged --quiet || git commit -m "chore(data): weekly digest $(date -u +%Y-W%V)"
-          git pull --rebase origin main || true
-          git push
+          git push --force-with-lease
 
   # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   # JOB 3 â€” Monthly report (runs on the 5th)
@@ -152,8 +150,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
           git diff --staged --quiet || git commit -m "chore(data): monthly report $(date -u +%Y-%m)"
-          git pull --rebase origin main || true
-          git push
+          git push --force-with-lease
 
   # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   
+
