@@ -59,7 +59,10 @@ jobs:
       - name: Run daily processor
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/processor.py --mode daily
+        run: |
+          find . -name "*.pyc" -delete
+          find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+          python scripts/processor.py --mode daily
 
       - name: Commit & push data files
         run: |
