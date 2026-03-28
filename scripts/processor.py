@@ -39,7 +39,7 @@ SEEN_FILE   = DATA_DIR / "seen_hashes.json"
 FEEDS_FILE  = SCRIPTS_DIR / "feeds.json"
 
 # Gemini rate-limit guard — free tier is 15 RPM / 1M TPM
-GEMINI_MODEL   = "gemini-2.5-flash-preview-04-17"
+GEMINI_MODEL   = "gemini-2.5-flash"
 MAX_CHARS_BATCH = 80_000   # ~20k tokens; safe per-request ceiling
 RETRY_DELAY_S   = 65       # Wait 65s between batches to respect RPM
 
@@ -142,7 +142,7 @@ def scrape_feeds(feeds: list[dict], since_date: date) -> list[dict]:
             })
 
     save_seen_hashes(seen)
-    log.info("Scraped %d new articles since %s", len(articles), since_date)
+    articles = articles[:30]`n    log.info("Scraped %d new articles since %s", len(articles), since_date)
     return articles
 
 
