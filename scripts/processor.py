@@ -219,7 +219,7 @@ def call_gemini(prompt: str, api_key: str) -> str:
     )
     body = {
         "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.3, "maxOutputTokens": 4096},
+        "generationConfig": {"temperature": 0.3, "maxOutputTokens": 8192},
     }
     for attempt in range(1, 4):
         try:
@@ -379,7 +379,7 @@ def run_daily(api_key: str) -> None:
     feeds = json.loads(FEEDS_FILE.read_text())
     # Look back 1 day for daily run
     since = today - timedelta(days=2)
-    articles = scrape_feeds(feeds, since)[:50]
+    articles = scrape_feeds(feeds, since)[:25]
 
     if not articles:
         log.warning("No new articles found; writing empty placeholder.")
@@ -472,5 +472,7 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
 
 
