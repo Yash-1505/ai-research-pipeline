@@ -1,16 +1,10 @@
-﻿name: AI Research Pipeline
+name: AI Research Pipeline
 
 on:
-  # â”€â”€ Scheduled triggers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   schedule:
-    # Daily digest  â€” every day at 07:00 UTC
     - cron: "0 7 * * *"
-    # Weekly digest â€” every Monday at 08:00 UTC
     - cron: "0 8 * * 1"
-    # Monthly report â€” 5th of each month at 09:00 UTC
     - cron: "0 9 5 * *"
-
-  # â”€â”€ Manual trigger (for testing) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   workflow_dispatch:
     inputs:
       mode:
@@ -23,18 +17,13 @@ on:
           - weekly
           - monthly
 
-# â”€â”€ Permissions: needed to push data files back to repo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 permissions:
   contents: write
 
 jobs:
-  # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  # JOB 1 â€” Daily digest (runs every day)
-  # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   daily-digest:
-    name: "ðŸ“° Daily Digest"
+    name: "Daily Digest"
     runs-on: ubuntu-latest
-    # Only on daily cron OR manual daily trigger
     if: |
       (github.event_name == 'schedule' && github.event.schedule == '0 7 * * *') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'daily')
@@ -50,8 +39,6 @@ jobs:
         uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.11"
-          
-          
 
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
@@ -64,19 +51,16 @@ jobs:
           find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
           python scripts/processor.py --mode daily
 
-      - name: Commit & push data files
+      - name: Commit and push data files
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
           git diff --staged --quiet || git commit -m "chore(data): daily digest $(date -u +%Y-%m-%d)"
           git push --force-with-lease
 
-  # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  # JOB 2 â€” Weekly digest (runs every Monday)
-  # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   weekly-digest:
-    name: "ðŸ“… Weekly Digest"
+    name: "Weekly Digest"
     runs-on: ubuntu-latest
     if: |
       (github.event_name == 'schedule' && github.event.schedule == '0 8 * * 1') ||
@@ -93,8 +77,6 @@ jobs:
         uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.11"
-          
-          
 
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
@@ -104,19 +86,16 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/processor.py --mode weekly
 
-      - name: Commit & push data files
+      - name: Commit and push data files
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
           git diff --staged --quiet || git commit -m "chore(data): weekly digest $(date -u +%Y-W%V)"
           git push --force-with-lease
 
-  # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  # JOB 3 â€” Monthly report (runs on the 5th)
-  # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   monthly-report:
-    name: "ðŸ“Š Monthly Report"
+    name: "Monthly Report"
     runs-on: ubuntu-latest
     if: |
       (github.event_name == 'schedule' && github.event.schedule == '0 9 5 * *') ||
@@ -133,8 +112,6 @@ jobs:
         uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.11"
-          
-          
 
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
@@ -144,14 +121,10 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/processor.py --mode monthly
 
-      - name: Commit & push data files
+      - name: Commit and push data files
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
           git diff --staged --quiet || git commit -m "chore(data): monthly report $(date -u +%Y-%m)"
           git push --force-with-lease
-
-  # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  
-
