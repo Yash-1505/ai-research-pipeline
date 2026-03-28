@@ -380,7 +380,7 @@ def run_daily(api_key: str) -> None:
     feeds = json.loads(FEEDS_FILE.read_text())
     # Look back 1 day for daily run
     since = today - timedelta(days=2)
-    articles = scrape_feeds(feeds, since)
+    articles = scrape_feeds(feeds, since)[:50]
 
     if not articles:
         log.warning("No new articles found; writing empty placeholder.")
