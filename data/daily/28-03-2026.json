@@ -1,0 +1,564 @@
+{
+  "type": "daily",
+  "date": "28-03-2026",
+  "generated_at": "2026-03-28T09:13:37.162724Z",
+  "article_count": 50,
+  "sources": [
+    "Google AI Blog",
+    "MIT Technology Review - AI",
+    "Towards Data Science"
+  ],
+  "summary": "Today is 28-03-2026.\n\n## ðŸ”‘ Executive Summary\n*   Google expands Gemini 3.1 with specialized audio, image, and efficient models, integrating AI across its products.\n*   Axiom Math launched Axplorer, an AI tool to discover new mathematical patterns, aiming to revolutionize scientific research.\n*   A battery company pivoted to AI materials discovery, highlighting AI's growing role in industrial R&D and sustainability.\n*   Pentagon's ban on Anthropic was halted, signaling ongoing regulatory challenges and policy complexities for major AI firms.\n*   Agentic commerce demands robust data management for trust and scalable autonomous transactions, emphasizing \"truth and context.\"\n\n## ðŸš€ Top Stories\n\n### Google Unleashes Specialized Gemini 3.1 Models and Expands AI Integrations\nGoogle released Gemini 3.1 Flash Live for natural audio AI and Lyria 3 for music generation, alongside Nano Banana 2 for image editing. These models are rapidly integrating across Google products like Search, Translate, and Sheets, enhancing user experience and developer capabilities.\nSource: Google AI Blog\nLink: [https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-live/](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-live/) (and related Google AI Blog posts for Lyria 3, Nano Banana 2)\n\n### AI Startup Axplorer Aims to Redefine Mathematical Discovery\nAxiom Math released Axplorer, a free AI tool designed to discover novel mathematical patterns, moving beyond solving existing problems to generating new ideas. This initiative aligns with DARPA's push for AI in mathematics, promising breakthroughs with broad technological impact.\nSource: MIT Technology Review - AI\nLink: [https://www.technologyreview.com/2026/03/25/1134642/this-startup-wants-to-change-how-mathematicians-do-math/](https://www.technologyreview.com/2026/03/25/1134642/this-startup-wants-to-change-how-mathematicians-do-math/)\n\n### Battery Company Pivots to AI for Materials Discovery Amid Industry Challenges\nSES AI, a Massachusetts-based battery company, is shifting its focus from advanced lithium batteries to AI-driven materials discovery, citing the unsustainability of Western battery manufacturing. This pivot highlights AI's critical role in accelerating R&D for next-generation industrial materials.\nSource: MIT Technology Review - AI\nLink: [https://www",
+  "articles": [
+    {
+      "title": "The Download: the internet’s best weather app, and why people freeze their brains",
+      "link": "https://www.technologyreview.com/2026/03/27/1134755/the-download-best-weather-forecasting-app-why-people-freeze-brains/",
+      "source": "MIT Technology Review - AI",
+      "date": "27-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "Here’s why some people choose cryonics to store their bodies and brains after death",
+      "link": "https://www.technologyreview.com/2026/03/27/1134705/cryonics-store-bodies-brains-after-death/",
+      "source": "MIT Technology Review - AI",
+      "date": "27-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "The Download: a battery pivot to AI, and rewriting math",
+      "link": "https://www.technologyreview.com/2026/03/26/1134697/the-download-battery-ai-pivot-new-ai-tool-math/",
+      "source": "MIT Technology Review - AI",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "The snow gods: How a couple of ski bums built the internet’s best weather app",
+      "link": "https://www.technologyreview.com/2026/03/26/1134470/the-snow-gods-how-a-couple-of-ski-bums-built-the-internets-best-weather-app/",
+      "source": "MIT Technology Review - AI",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "Are high gas prices good news for EVs? It’s complicated.",
+      "link": "https://www.technologyreview.com/2026/03/26/1134677/gas-prices-electric-vehicles/",
+      "source": "MIT Technology Review - AI",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "Roundtables: The Next Era of Space Exploration",
+      "link": "https://www.technologyreview.com/2026/03/25/1134664/roundtables-the-next-era-of-space-exploration/",
+      "source": "MIT Technology Review - AI",
+      "date": "25-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "Why this battery company is pivoting to AI",
+      "link": "https://www.technologyreview.com/2026/03/25/1134657/battery-company-ai-pivot-ses/",
+      "source": "MIT Technology Review - AI",
+      "date": "25-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "This startup wants to change how mathematicians do math",
+      "link": "https://www.technologyreview.com/2026/03/25/1134642/this-startup-wants-to-change-how-mathematicians-do-math/",
+      "source": "MIT Technology Review - AI",
+      "date": "25-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "The Download: reawakening frozen brains, and the AI Hype Index returns",
+      "link": "https://www.technologyreview.com/2026/03/25/1134636/the-download-reawakening-frozen-brains-and-the-ai-hype-index-returns/",
+      "source": "MIT Technology Review - AI",
+      "date": "25-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "Agentic commerce runs on truth and context",
+      "link": "https://www.technologyreview.com/2026/03/25/1134516/agentic-commerce-runs-on-truth-and-context/",
+      "source": "MIT Technology Review - AI",
+      "date": "25-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "Watch James Manyika talk AI and creativity with LL COOL J.",
+      "link": "https://blog.google/innovation-and-ai/technology/ai/ll-cool-j-dialogues/",
+      "source": "Google AI Blog",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Transform your headphones into a live personal translator on iOS.",
+      "link": "https://blog.google/products-and-platforms/products/translate/live-translate-with-headphones/",
+      "source": "Google AI Blog",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Gemini 3.1 Flash Live: Making audio AI more natural and reliable",
+      "link": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-live/",
+      "source": "Google AI Blog",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Search Live is expanding globally",
+      "link": "https://blog.google/products-and-platforms/products/search/search-live-global-expansion/",
+      "source": "Google AI Blog",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Build with Lyria 3, our newest music generation model",
+      "link": "https://blog.google/innovation-and-ai/technology/developers-tools/lyria-3-developers/",
+      "source": "Google AI Blog",
+      "date": "25-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Lyria 3 Pro: Create longer tracks in more Google products",
+      "link": "https://blog.google/innovation-and-ai/technology/ai/lyria-3-pro/",
+      "source": "Google AI Blog",
+      "date": "25-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Bringing the power of Personal Intelligence to more people",
+      "link": "https://blog.google/products-and-platforms/products/search/personal-intelligence-expansion/",
+      "source": "Google AI Blog",
+      "date": "17-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Our latest investment in open source security for the AI era",
+      "link": "https://blog.google/innovation-and-ai/technology/safety-security/ai-powered-open-source-security/",
+      "source": "Google AI Blog",
+      "date": "17-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "How AI is helping improve heart health in rural Australia",
+      "link": "https://blog.google/innovation-and-ai/technology/health/google-ai-heart-health-australia/",
+      "source": "Google AI Blog",
+      "date": "12-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Gemini in Google Sheets just achieved state-of-the-art performance.",
+      "link": "https://blog.google/products-and-platforms/products/workspace/gemini-google-sheets-state-of-the-art/",
+      "source": "Google AI Blog",
+      "date": "10-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "How our open-source AI model SpeciesNet is helping to promote wildlife conservation",
+      "link": "https://blog.google/company-news/outreach-and-initiatives/sustainability/speciesnet-open-source-ai-wildlife/",
+      "source": "Google AI Blog",
+      "date": "06-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Ask a Techspert: How does AI understand my visual searches?",
+      "link": "https://blog.google/company-news/inside-google/googlers/how-google-ai-visual-search-works/",
+      "source": "Google AI Blog",
+      "date": "05-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "The latest AI news we announced in February",
+      "link": "https://blog.google/innovation-and-ai/products/google-ai-updates-february-2026/",
+      "source": "Google AI Blog",
+      "date": "05-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Use Canvas in AI Mode to get things done and bring your ideas to life, right in Search.",
+      "link": "https://blog.google/products-and-platforms/products/search/ai-mode-canvas-writing-coding/",
+      "source": "Google AI Blog",
+      "date": "04-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Create new worlds in Project Genie with these 4 tips",
+      "link": "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/tips-prompt-writing-project-genie/",
+      "source": "Google AI Blog",
+      "date": "03-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Gemini 3.1 Flash-Lite: Built for intelligence at scale",
+      "link": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-lite/",
+      "source": "Google AI Blog",
+      "date": "03-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Google and the Massachusetts AI Hub are launching a new AI training initiative for the Commonwealth.",
+      "link": "https://blog.google/company-news/outreach-and-initiatives/grow-with-google/google-ai-training-massachusetts-residents/",
+      "source": "Google AI Blog",
+      "date": "26-02-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Get more context and understand translations more deeply with new AI-powered updates in Translate.",
+      "link": "https://blog.google/products-and-platforms/products/translate/translation-context-ai-update/",
+      "source": "Google AI Blog",
+      "date": "26-02-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Build with Nano Banana 2, our best image generation and editing model",
+      "link": "https://blog.google/innovation-and-ai/technology/developers-tools/build-with-nano-banana-2/",
+      "source": "Google AI Blog",
+      "date": "26-02-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Nano Banana 2: Combining Pro capabilities with lightning-fast speed",
+      "link": "https://blog.google/innovation-and-ai/technology/ai/nano-banana-2/",
+      "source": "Google AI Blog",
+      "date": "26-02-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Building a Production-Grade Multi-Node Training Pipeline with PyTorch DDP",
+      "link": "https://towardsdatascience.com/building-a-production-grade-multi-node-training-pipeline-with-pytorch-ddp/",
+      "source": "Towards Data Science",
+      "date": "27-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "A Beginner’s Guide to Quantum Computing with Python",
+      "link": "https://towardsdatascience.com/a-beginners-guide-to-quantum-computing-with-python/",
+      "source": "Towards Data Science",
+      "date": "27-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "How ElevenLabs Voice AI Is Replacing Screens in Warehouse and Manufacturing Operations",
+      "link": "https://towardsdatascience.com/how-elevenlabs-voice-ai-is-replacing-screens-in-warehouse-and-manufacturing-operations/",
+      "source": "Towards Data Science",
+      "date": "27-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "How to Make Your AI App Faster and More Interactive with Response Streaming",
+      "link": "https://towardsdatascience.com/how-to-make-your-ai-app-faster-and-more-interactive-with-response-streaming/",
+      "source": "Towards Data Science",
+      "date": "26-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "Beyond Code Generation: AI for the Full Data Science Workflow",
+      "link": "https://towardsdatascience.com/beyond-code-generation-ai-for-the-full-data-science-workflow/",
+      "source": "Towards Data Science",
+      "date": "26-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "What the Bits-over-Random Metric Changed in How I Think About RAG and Agents",
+      "link": "https://towardsdatascience.com/what-the-bits-over-random-metric-changed-in-how-i-think-about-rag-and-agents/",
+      "source": "Towards Data Science",
+      "date": "26-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "Following Up on Like-for-Like for Stores: Handling PY",
+      "link": "https://towardsdatascience.com/follow-up-on-like-for-like-for-stores-handling-py/",
+      "source": "Towards Data Science",
+      "date": "25-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "The Machine Learning Lessons I’ve Learned This Month",
+      "link": "https://towardsdatascience.com/the-machine-learning-lessons-ive-learned-this-month-5/",
+      "source": "Towards Data Science",
+      "date": "25-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "Building Human-In-The-Loop Agentic Workflows",
+      "link": "https://towardsdatascience.com/building-human-in-the-loop-agentic-workflows/",
+      "source": "Towards Data Science",
+      "date": "25-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "My Models Failed. That’s How I Became a Better Data Scientist.",
+      "link": "https://towardsdatascience.com/my-models-failed-thats-how-i-became-a-better-data-scientist/",
+      "source": "Towards Data Science",
+      "date": "25-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "How to Make Claude Code Improve from its Own Mistakes",
+      "link": "https://towardsdatascience.com/how-to-make-claude-code-improve-from-its-mistakes/",
+      "source": "Towards Data Science",
+      "date": "24-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "From Dashboards to Decisions: Rethinking Data & Analytics in the Age of AI",
+      "link": "https://towardsdatascience.com/from-dashboards-to-decisions-rethinking-data-analytics-in-the-age-of-ai/",
+      "source": "Towards Data Science",
+      "date": "24-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "Production-Ready LLM Agents: A Comprehensive Framework for Offline Evaluation",
+      "link": "https://towardsdatascience.com/production-ready-llm-agents-a-comprehensive-framework-for-offline-evaluation/",
+      "source": "Towards Data Science",
+      "date": "24-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "The Complete Guide to AI Implementation for Chief Data & AI Officers in 2026",
+      "link": "https://towardsdatascience.com/the-complete-guide-to-ai-implementation-for-chief-data-ai-officers-in-2026/",
+      "source": "Towards Data Science",
+      "date": "24-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "4 Pandas Concepts That Quietly Break Your Data Pipelines",
+      "link": "https://towardsdatascience.com/most-pandas-tutorials-skip-this-thats-why-your-code-breaks-later/",
+      "source": "Towards Data Science",
+      "date": "23-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "Causal Inference Is Eating Machine Learning",
+      "link": "https://towardsdatascience.com/causal-inference-is-eating-machine-learning/",
+      "source": "Towards Data Science",
+      "date": "23-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "Neuro-Symbolic Fraud Detection: Catching Concept Drift Before F1 Drops (Label-Free)",
+      "link": "https://towardsdatascience.com/neuro-symbolic-fraud-detection-catching-concept-drift-before-f1-drops-label-free/",
+      "source": "Towards Data Science",
+      "date": "23-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "I Built a Podcast Clipping App in One Weekend Using Vibe Coding",
+      "link": "https://towardsdatascience.com/i-built-a-podcast-clipping-app-in-one-weekend-using-vibe-coding/",
+      "source": "Towards Data Science",
+      "date": "23-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "Prompt Caching with the OpenAI API: A Full Hands-On Python tutorial",
+      "link": "https://towardsdatascience.com/prompt-caching-with-openai-api-full-hands-on-python-tutorial/",
+      "source": "Towards Data Science",
+      "date": "22-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    },
+    {
+      "title": "Building a Navier-Stokes Solver in Python from Scratch: Simulating Airflow",
+      "link": "https://towardsdatascience.com/building-a-navier-stokes-solver-in-python-from-scratch-simulating-airflow/",
+      "source": "Towards Data Science",
+      "date": "22-03-2026",
+      "tags": [
+        "data-science",
+        "ML",
+        "tutorials"
+      ]
+    }
+  ]
+}

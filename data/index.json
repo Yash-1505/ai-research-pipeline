@@ -1,6 +1,12 @@
 {
   "daily": [
     {
+      "file": "data/daily/28-03-2026.json",
+      "label": "28-03-2026",
+      "date": "28-03-2026",
+      "article_count": 50
+    },
+    {
       "file": "data/daily/2026-03-26.json",
       "label": "2026-03-26",
       "date": "2026-03-26",
@@ -35,5 +41,5 @@
       "article_count": null
     }
   ],
-  "last_updated": "2026-03-26T19:31:07.405157Z"
+  "last_updated": "2026-03-28T09:13:37.164338Z"
 }
