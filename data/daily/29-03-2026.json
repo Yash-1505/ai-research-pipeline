@@ -1,9 +1,288 @@
 {
   "type": "daily",
   "date": "29-03-2026",
-  "generated_at": "2026-03-29T07:50:50.439101Z",
-  "article_count": 0,
-  "sources": [],
-  "summary": "No new articles found for this date.",
-  "articles": []
+  "generated_at": "2026-03-29T08:06:43.291273Z",
+  "article_count": 25,
+  "sources": [
+    "Google AI Blog",
+    "MIT Technology Review - AI"
+  ],
+  "summary": "## ðŸ”‘ Executive Summary\n\n*   A judge halted the Pentagon's ban on Anthropic, easing regulatory pressure on a major AI developer.\n*   Google launched Gemini 3.1 Flash Live and Lyria 3, enhancing audio and music generation AI.\n*   Axiom Math released Axplorer, an AI tool designed to discover new mathematical patterns.\n*   Battery company SES AI pivoted to AI materials discovery, highlighting AI's role in industrial innovation.\n*   A proposed US AI safety bill could halt data center construction, signaling growing infrastructure concerns.\n\n## ðŸš€ Top Stories\n\n### Pentagon Ban on Anthropic Halted by Judge\nA US judge has paused the Pentagon's designation of Anthropic as a supply chain risk, temporarily lifting a ban that could have impacted the AI firm's government contracts. This decision highlights ongoing legal and regulatory challenges faced by leading AI developers.\nSource: MIT Technology Review - AI\nLink: https://www.technologyreview.com/2026/03/27/1134755/the-download-best-weather-forecasting-app-why-people-freeze-brains/\n\n### Google Releases Gemini 3.1 Flash Live for Audio AI\nGoogle has launched Gemini 3.1 Flash Live, a new model designed to make audio AI more natural and reliable across its product ecosystem. This release aims to enhance real-time audio processing and interaction capabilities.\nSource: Google AI Blog\nLink: https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-live/\n\n### Axiom Math Unveils Axplorer for Mathematical Discovery\nStartup Axiom Math released Axplorer, a free AI tool aimed at helping mathematicians discover new patterns and solve long-standing problems. The tool, a redesign of Meta's PatternBoost, seeks to democratize advanced mathematical research.\nSource: MIT Technology Review - AI\nLink: https://www.technologyreview.com/2026/03/25/1134642/this-startup-wants-to-change-how-mathematicians-do-math/\n\n### Battery Company SES AI Pivots to AI Materials Discovery\nSES AI, a Massachusetts-based battery company, is shifting its focus from advanced lithium batteries to AI-driven materials discovery, citing competitive pressures in the Western battery industry. This strategic pivot underscores the growing importance of AI in fundamental scientific and industrial innovation.\nSource: MIT Technology Review - AI\nLink: https://www.technologyreview.com/2026/03/25/1134657/battery-company-ai-pivot-ses/\n\n### Google Launches Lyria 3 Music Generation Model\nGoogle has made its Lyria 3 music generation model available in paid preview via the Gemini API and for testing in Google AI Studio. A \"Pro\" version also allows for creating longer tracks in various Google products, expanding creative AI capabilities.\nSource: Google AI Blog\nLink: https://blog.google/innovation-and-ai/technology/developers-tools/lyria-3-developers/\n\n### Proposed AI Safety Bill Could Halt Data Center Construction\nSenator Bernie Sanders introduced a new AI safety bill that includes provisions to halt data center construction, raising concerns about potential impacts on AI infrastructure development. This reflects increasing legislative scrutiny over the environmental and societal footprint of AI.\nSource: MIT Technology Review - AI\nLink: https://www.technologyreview.com/2026/03/26/1134697/the-download-battery-ai-pivot-new-ai-tool-math/\n\n### Niantic Spatial Uses Pokémon Go Data for Robot World Models\nNiantic Spatial, an AI company spun out from Niantic, is leveraging vast crowdsourced data from Pokémon Go to build \"world models\" for more precise robot navigation. This innovative approach grounds LLM intelligence in real-world environments for robotics and augmented reality.\nSource: MIT Technology Review - AI\nLink: https://www.technologyreview.com/2026/03/25/1134636/the-download-reawakening-frozen-brains-and-the-ai-hype-index-returns/\n\n### Google Expands Live Translate with Headphones to iOS\nGoogle Translate's Live Translate feature, enabling real-time personal translation through headphones, is now officially available on iOS and expanding to more countries for both iOS and Android users. This broadens access to practical AI-powered communication tools.\nSource: Google AI Blog\nLink: https://blog.google/products-and-platforms/products/translate/live-translate-with-headphones/\n\n## ðŸ§  Key Trends & Signals\n\n*   **AI for Scientific Discovery:** AI tools are increasingly being developed to accelerate fundamental research, particularly in mathematics and materials science, moving beyond problem-solving to pattern discovery.\n*   **Regulatory Scrutiny on AI Infrastructure:** Legislative efforts are emerging to control the physical footprint of AI, such as data center construction, indicating growing environmental and societal concerns.\n*   **Strategic Pivots to AI:** Companies in traditional tech sectors (e.g., batteries) are strategically pivoting to AI-driven approaches to remain competitive, highlighting AI's disruptive potential in industrial innovation.\n*   **Advancements in Multimodal AI:** New model releases like Gemini 3.1 Flash Live and Lyria 3 demonstrate continued progress in natural and reliable audio and music generation, expanding creative and interactive AI capabilities.\n*   **Real-world AI Integration:** AI applications are expanding into practical, everyday tools like live translation and enhanced search, as well as specialized domains like robotics (world models) and weather forecasting.\n*   **Open Source AI Security Focus:** Major players are increasing investments in securing the open-source software supply chain for AI, recognizing its critical role in the broader AI ecosystem.\n\n## âš¡ Action Items\n\n*   **Monitor AI Policy Developments:** Track proposed legislation like the AI safety bill impacting data center construction, as it could significantly affect future infrastructure planning and costs.\n*   **Evaluate AI for R&D Acceleration:** Explore how AI tools for scientific discovery (e.g., materials science, mathematical pattern recognition) could be integrated into internal R&D processes to accelerate innovation.\n*   **Assess Multimodal AI Capabilities:** Investigate the latest multimodal AI models (e.g., audio, music generation) for potential applications in product development, content creation, or enhanced user experiences.\n*   **Review AI Supply Chain Security:** Prioritize investments and strategies for securing open-source components within your AI stack, aligning with industry efforts to mitigate risks.\n*   **Explore Edge AI and Robotics Integration:** Consider how \"world models\" and real-world data integration could enhance autonomous systems or augmented reality applications relevant to your business.",
+  "articles": [
+    {
+      "title": "A woman’s uterus has been kept alive outside the body for the first time",
+      "link": "https://www.technologyreview.com/2026/03/28/1134766/womans-uterus-kept-alive-outside-the-body-first/",
+      "source": "MIT Technology Review - AI",
+      "date": "28-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "The Download: the internet’s best weather app, and why people freeze their brains",
+      "link": "https://www.technologyreview.com/2026/03/27/1134755/the-download-best-weather-forecasting-app-why-people-freeze-brains/",
+      "source": "MIT Technology Review - AI",
+      "date": "27-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "Here’s why some people choose cryonics to store their bodies and brains after death",
+      "link": "https://www.technologyreview.com/2026/03/27/1134705/cryonics-store-bodies-brains-after-death/",
+      "source": "MIT Technology Review - AI",
+      "date": "27-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "The Download: a battery pivot to AI, and rewriting math",
+      "link": "https://www.technologyreview.com/2026/03/26/1134697/the-download-battery-ai-pivot-new-ai-tool-math/",
+      "source": "MIT Technology Review - AI",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "The snow gods: How a couple of ski bums built the internet’s best weather app",
+      "link": "https://www.technologyreview.com/2026/03/26/1134470/the-snow-gods-how-a-couple-of-ski-bums-built-the-internets-best-weather-app/",
+      "source": "MIT Technology Review - AI",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "Are high gas prices good news for EVs? It’s complicated.",
+      "link": "https://www.technologyreview.com/2026/03/26/1134677/gas-prices-electric-vehicles/",
+      "source": "MIT Technology Review - AI",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "Roundtables: The Next Era of Space Exploration",
+      "link": "https://www.technologyreview.com/2026/03/25/1134664/roundtables-the-next-era-of-space-exploration/",
+      "source": "MIT Technology Review - AI",
+      "date": "25-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "Why this battery company is pivoting to AI",
+      "link": "https://www.technologyreview.com/2026/03/25/1134657/battery-company-ai-pivot-ses/",
+      "source": "MIT Technology Review - AI",
+      "date": "25-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "This startup wants to change how mathematicians do math",
+      "link": "https://www.technologyreview.com/2026/03/25/1134642/this-startup-wants-to-change-how-mathematicians-do-math/",
+      "source": "MIT Technology Review - AI",
+      "date": "25-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "The Download: reawakening frozen brains, and the AI Hype Index returns",
+      "link": "https://www.technologyreview.com/2026/03/25/1134636/the-download-reawakening-frozen-brains-and-the-ai-hype-index-returns/",
+      "source": "MIT Technology Review - AI",
+      "date": "25-03-2026",
+      "tags": [
+        "AI",
+        "research",
+        "technology"
+      ]
+    },
+    {
+      "title": "Watch James Manyika talk AI and creativity with LL COOL J.",
+      "link": "https://blog.google/innovation-and-ai/technology/ai/ll-cool-j-dialogues/",
+      "source": "Google AI Blog",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Transform your headphones into a live personal translator on iOS.",
+      "link": "https://blog.google/products-and-platforms/products/translate/live-translate-with-headphones/",
+      "source": "Google AI Blog",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Gemini 3.1 Flash Live: Making audio AI more natural and reliable",
+      "link": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-live/",
+      "source": "Google AI Blog",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Search Live is expanding globally",
+      "link": "https://blog.google/products-and-platforms/products/search/search-live-global-expansion/",
+      "source": "Google AI Blog",
+      "date": "26-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Build with Lyria 3, our newest music generation model",
+      "link": "https://blog.google/innovation-and-ai/technology/developers-tools/lyria-3-developers/",
+      "source": "Google AI Blog",
+      "date": "25-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Lyria 3 Pro: Create longer tracks in more Google products",
+      "link": "https://blog.google/innovation-and-ai/technology/ai/lyria-3-pro/",
+      "source": "Google AI Blog",
+      "date": "25-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Bringing the power of Personal Intelligence to more people",
+      "link": "https://blog.google/products-and-platforms/products/search/personal-intelligence-expansion/",
+      "source": "Google AI Blog",
+      "date": "17-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Our latest investment in open source security for the AI era",
+      "link": "https://blog.google/innovation-and-ai/technology/safety-security/ai-powered-open-source-security/",
+      "source": "Google AI Blog",
+      "date": "17-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "How AI is helping improve heart health in rural Australia",
+      "link": "https://blog.google/innovation-and-ai/technology/health/google-ai-heart-health-australia/",
+      "source": "Google AI Blog",
+      "date": "12-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Gemini in Google Sheets just achieved state-of-the-art performance.",
+      "link": "https://blog.google/products-and-platforms/products/workspace/gemini-google-sheets-state-of-the-art/",
+      "source": "Google AI Blog",
+      "date": "10-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "How our open-source AI model SpeciesNet is helping to promote wildlife conservation",
+      "link": "https://blog.google/company-news/outreach-and-initiatives/sustainability/speciesnet-open-source-ai-wildlife/",
+      "source": "Google AI Blog",
+      "date": "06-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Ask a Techspert: How does AI understand my visual searches?",
+      "link": "https://blog.google/company-news/inside-google/googlers/how-google-ai-visual-search-works/",
+      "source": "Google AI Blog",
+      "date": "05-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "The latest AI news we announced in February",
+      "link": "https://blog.google/innovation-and-ai/products/google-ai-updates-february-2026/",
+      "source": "Google AI Blog",
+      "date": "05-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Use Canvas in AI Mode to get things done and bring your ideas to life, right in Search.",
+      "link": "https://blog.google/products-and-platforms/products/search/ai-mode-canvas-writing-coding/",
+      "source": "Google AI Blog",
+      "date": "04-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    },
+    {
+      "title": "Create new worlds in Project Genie with these 4 tips",
+      "link": "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/tips-prompt-writing-project-genie/",
+      "source": "Google AI Blog",
+      "date": "03-03-2026",
+      "tags": [
+        "AI",
+        "google",
+        "research"
+      ]
+    }
+  ]
 }
