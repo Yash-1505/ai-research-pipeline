@@ -1,6 +1,6 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
-Zero-Cost AI Research Pipeline â€” processor.py
+Zero-Cost AI Research Pipeline — processor.py
 Scrapes RSS feeds, deduplicates, and summarizes with Gemini 1.5 Flash.
 
 Usage:
@@ -22,8 +22,9 @@ from pathlib import Path
 from typing import Any
 
 import feedparser
+import google.generativeai as genai
 
-# â”€â”€ Logging â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Logging ──────────────────────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -31,23 +32,23 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Constants ─────────────────────────────────────────────────────────────────
 REPO_ROOT   = Path(__file__).parent.parent
 DATA_DIR    = REPO_ROOT / "data"
 SCRIPTS_DIR = Path(__file__).parent
 SEEN_FILE   = DATA_DIR / "seen_hashes.json"
 FEEDS_FILE  = SCRIPTS_DIR / "feeds.json"
 
-# Gemini rate-limit guard â€” free tier is 15 RPM / 1M TPM
-GEMINI_MODEL   = "gemini-2.5-flash"
+# Gemini rate-limit guard — free tier is 15 RPM / 1M TPM
+GEMINI_MODEL   = "gemini-1.5-flash"
 MAX_CHARS_BATCH = 80_000   # ~20k tokens; safe per-request ceiling
 RETRY_DELAY_S   = 65       # Wait 65s between batches to respect RPM
 
-# â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def load_seen_hashes() -> set[str]:
     if SEEN_FILE.exists():
-        return set(json.loads(SEEN_FILE.read_text(encoding="utf-8-sig")))
+        return set(json.loads(SEEN_FILE.read_text()))
     return set()
 
 
@@ -67,8 +68,8 @@ def parse_date(entry) -> str:
     for attr in ("published_parsed", "updated_parsed"):
         t = getattr(entry, attr, None)
         if t:
-            return date(*t[:3]).strftime('%d-%m-%Y')
-    return date.today().strftime('%d-%m-%Y')
+            return date(*t[:3]).isoformat()
+    return date.today().isoformat()
 
 
 def entry_text(entry) -> str:
@@ -84,14 +85,19 @@ def entry_text(entry) -> str:
     return content[:3000]  # cap per article
 
 
-# â”€â”€ Scraping â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Scraping ──────────────────────────────────────────────────────────────────
 
-def scrape_feeds(feeds: list[dict], since_date: date) -> list[dict]:
+def scrape_feeds(feeds: list[dict], since_date: date) -> tuple[list[dict], set[str]]:
     """
-    Scrape all feeds, filter articles published â‰¥ since_date, deduplicate.
-    Returns list of article dicts.
+    Scrape all feeds, filter articles published >= since_date, deduplicate.
+    Returns (articles, new_hashes).
+
+    IMPORTANT: hashes are NOT persisted here. The caller must call
+    save_seen_hashes(new_hashes) only after a successful write, so a
+    Gemini failure cannot permanently blacklist un-summarised articles.
     """
-    seen = load_seen_hashes()
+    existing_seen = load_seen_hashes()
+    new_hashes: set[str] = set()
     articles: list[dict] = []
 
     for feed_meta in feeds:
@@ -126,11 +132,11 @@ def scrape_feeds(feeds: list[dict], since_date: date) -> list[dict]:
                 continue
 
             h = article_hash(title, link)
-            if h in seen:
+            if h in existing_seen or h in new_hashes:
                 log.debug("Skip duplicate: %s", title[:80])
                 continue
 
-            seen.add(h)
+            new_hashes.add(h)
             articles.append({
                 "hash":      h,
                 "title":     title,
@@ -141,21 +147,21 @@ def scrape_feeds(feeds: list[dict], since_date: date) -> list[dict]:
                 "text":      entry_text(entry),
             })
 
-    save_seen_hashes(seen)
     log.info("Scraped %d new articles since %s", len(articles), since_date)
-    return articles
+    return articles, new_hashes
 
-# â”€â”€ Gemini Summarization â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+# ── Gemini Summarization ──────────────────────────────────────────────────────
 
 def build_daily_prompt(articles: list[dict], target_date: str) -> str:
     lines = [
         f"You are a CTO-level AI research analyst. Today is {target_date}.",
         "Below are raw articles scraped from top AI/Tech newsletters.",
         "Your task: produce a DAILY BRIEFING in clean Markdown with these sections:\n",
-        "## ðŸ”‘ Executive Summary  (3-5 bullets, each â‰¤ 25 words)\n",
-        "## ðŸš€ Top Stories  (top 5â€“8 stories, each with: ### Title, 2-sentence summary, source, link)\n",
-        "## ðŸ§  Key Trends & Signals  (bullet list of emerging patterns CTO should track)\n",
-        "## âš¡ Action Items  (what an AI-focused team should do/consider this week)\n",
+        "## 🔑 Executive Summary  (3-5 bullets, each ≤ 25 words)\n",
+        "## 🚀 Top Stories  (top 5–8 stories, each with: ### Title, 2-sentence summary, source, link)\n",
+        "## 🧠 Key Trends & Signals  (bullet list of emerging patterns CTO should track)\n",
+        "## ⚡ Action Items  (what an AI-focused team should do/consider this week)\n",
         "Rules: No fluff. No repeated information. Prioritise research breakthroughs, model releases, and business-critical AI news. Skip pure marketing puff.\n",
         "---\nARTICLES:\n",
     ]
@@ -176,12 +182,12 @@ def build_weekly_prompt(daily_files: list[Path]) -> str:
         "You are a CTO-level AI research analyst. Synthesise the following 7 DAILY BRIEFINGS into a "
         "WEEKLY DIGEST in clean Markdown.\n\n"
         "Required sections:\n"
-        "## ðŸ“… Week in Review  (top headline: 1 sentence)\n"
-        "## ðŸ† Biggest Stories of the Week  (5â€“10, deduplicated)\n"
-        "## ðŸ“ˆ Trend Analysis  (patterns that appeared multiple days â€” what's accelerating?)\n"
-        "## ðŸ”¬ Research Highlights  (notable papers/releases worth deep-reading)\n"
-        "## ðŸ’¼ Business & Industry Moves  (funding, acquisitions, partnerships)\n"
-        "## ðŸ—“ï¸ What to Watch Next Week\n\n"
+        "## 📅 Week in Review  (top headline: 1 sentence)\n"
+        "## 🏆 Biggest Stories of the Week  (5–10, deduplicated)\n"
+        "## 📈 Trend Analysis  (patterns that appeared multiple days — what's accelerating?)\n"
+        "## 🔬 Research Highlights  (notable papers/releases worth deep-reading)\n"
+        "## 💼 Business & Industry Moves  (funding, acquisitions, partnerships)\n"
+        "## 🗓️ What to Watch Next Week\n\n"
         "Rules: No repetition across sections. Merge duplicate stories into single entries. Be concise and CTO-appropriate.\n\n"
         "---\nDAILY SUMMARIES:\n\n" + "\n\n".join(combined)
     )
@@ -197,41 +203,44 @@ def build_monthly_prompt(weekly_files: list[Path]) -> str:
         "You are a CTO-level AI research analyst. Synthesise the following WEEKLY DIGESTS into a "
         "MONTHLY EXECUTIVE REPORT in clean Markdown.\n\n"
         "Required sections:\n"
-        "## ðŸ“Š Month at a Glance  (3â€“5 bullet TL;DR)\n"
-        "## ðŸŽ¯ Major Milestones  (top 10 most important events/releases of the month)\n"
-        "## ðŸ“ˆ Macro Trends  (3â€“5 persistent trends; rate each: Accelerating / Stable / Slowing)\n"
-        "## ðŸ”¬ Research Landscape  (notable papers, model releases, benchmark shifts)\n"
-        "## ðŸ’° Industry & Investment  (funding rounds, M&A, big-tech moves)\n"
-        "## âš ï¸ Risks & Watch List  (emerging risks, regulatory signals, controversial developments)\n"
-        "## ðŸ“‹ Strategic Recommendations  (what an AI-focused company should prioritise next month)\n\n"
+        "## 📊 Month at a Glance  (3–5 bullet TL;DR)\n"
+        "## 🎯 Major Milestones  (top 10 most important events/releases of the month)\n"
+        "## 📈 Macro Trends  (3–5 persistent trends; rate each: Accelerating / Stable / Slowing)\n"
+        "## 🔬 Research Landscape  (notable papers, model releases, benchmark shifts)\n"
+        "## 💰 Industry & Investment  (funding rounds, M&A, big-tech moves)\n"
+        "## ⚠️ Risks & Watch List  (emerging risks, regulatory signals, controversial developments)\n"
+        "## 📋 Strategic Recommendations  (what an AI-focused company should prioritise next month)\n\n"
         "Rules: Executive-level prose. No duplication. Cite sources where known. Be analytical, not journalistic.\n\n"
         "---\nWEEKLY DIGESTS:\n\n" + "\n\n".join(combined)
     )
 
 
 def call_gemini(prompt: str, api_key: str) -> str:
-    """Call Gemini 2.0 Flash via REST API directly."""
-    import requests as req
-    url = (
-        "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{GEMINI_MODEL}:generateContent"
-        f"?key={api_key}"
-    )
-    body = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.3, "maxOutputTokens": 8192},
-    }
+    """Call Gemini 1.5 Flash with retry on 429."""
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(GEMINI_MODEL)
+
     for attempt in range(1, 4):
         try:
-            r = req.post(url, json=body, timeout=120)
-            r.raise_for_status()
-            data = r.json()
-            return data["candidates"][0]["content"]["parts"][0]["text"]
+            response = model.generate_content(
+                prompt,
+                generation_config=genai.GenerationConfig(
+                    temperature=0.3,
+                    max_output_tokens=4096,
+                ),
+                safety_settings=[
+                    {"category": "HARM_CATEGORY_HARASSMENT",        "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_HATE_SPEECH",       "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+                ],
+            )
+            return response.text
         except Exception as exc:
             log.warning("Gemini attempt %d failed: %s", attempt, exc)
             if attempt < 3:
                 wait = RETRY_DELAY_S * attempt
-                log.info("Waiting %ds before retry...", wait)
+                log.info("Waiting %ds before retry…", wait)
                 time.sleep(wait)
     raise RuntimeError("Gemini API failed after 3 attempts")
 
@@ -256,24 +265,24 @@ def batch_and_summarise(articles: list[dict], api_key: str, target_date: str) ->
     if not batches:
         return "No new articles found for this period."
 
-    log.info("Processing %d batch(es) through Geminiâ€¦", len(batches))
+    log.info("Processing %d batch(es) through Gemini…", len(batches))
     summaries: list[str] = []
 
     for i, batch in enumerate(batches, 1):
-        log.info("Batch %d/%d (%d articles)â€¦", i, len(batches), len(batch))
+        log.info("Batch %d/%d (%d articles)…", i, len(batches), len(batch))
         prompt  = build_daily_prompt(batch, target_date)
         result  = call_gemini(prompt, api_key)
         summaries.append(result)
 
         if i < len(batches):
-            log.info("Rate-limit pause %dsâ€¦", RETRY_DELAY_S)
+            log.info("Rate-limit pause %ds…", RETRY_DELAY_S)
             time.sleep(RETRY_DELAY_S)
 
     if len(summaries) == 1:
         return summaries[0]
 
     # Merge multi-batch summaries with a second Gemini call
-    log.info("Merging %d partial summariesâ€¦", len(summaries))
+    log.info("Merging %d partial summaries…", len(summaries))
     merge_prompt = (
         "You are a CTO-level AI research analyst. Merge and deduplicate the following partial daily briefings "
         "into ONE cohesive DAILY BRIEFING. Keep all sections (Executive Summary, Top Stories, Key Trends, "
@@ -283,7 +292,7 @@ def batch_and_summarise(articles: list[dict], api_key: str, target_date: str) ->
     return call_gemini(merge_prompt, api_key)
 
 
-# â”€â”€ Output Writers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Output Writers ────────────────────────────────────────────────────────────
 
 def write_daily(summary: str, articles: list[dict], target_date: str) -> None:
     out_dir = DATA_DIR / "daily"
@@ -303,8 +312,6 @@ def write_daily(summary: str, articles: list[dict], target_date: str) -> None:
     }
     out_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
     log.info("Written: %s", out_file)
-    md_file = out_dir / f"{target_date}.md"
-    md_file.write_text(f"# Daily Digest - {target_date}\n\n{summary}\n", encoding="utf-8")
 
 
 def write_weekly(summary: str, week_label: str, daily_dates: list[str]) -> None:
@@ -321,8 +328,6 @@ def write_weekly(summary: str, week_label: str, daily_dates: list[str]) -> None:
     }
     out_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
     log.info("Written: %s", out_file)
-    md_file = out_dir / f"{week_label}.md"
-    md_file.write_text(f"# Weekly Digest - {week_label}\n\n{summary}\n", encoding="utf-8")
 
 
 def write_monthly(summary: str, month_label: str, weekly_labels: list[str]) -> None:
@@ -339,8 +344,6 @@ def write_monthly(summary: str, month_label: str, weekly_labels: list[str]) -> N
     }
     out_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
     log.info("Written: %s", out_file)
-    md_file = out_dir / f"{month_label}.md"
-    md_file.write_text(f"# Monthly Report - {month_label}\n\n{summary}\n", encoding="utf-8")
 
 
 def write_index() -> None:
@@ -369,46 +372,57 @@ def write_index() -> None:
     log.info("Index updated: %s", index_file)
 
 
-# â”€â”€ Modes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Modes ─────────────────────────────────────────────────────────────────────
 
 def run_daily(api_key: str) -> None:
     today = date.today()
-    target = today.strftime('%d-%m-%Y')
+    target = today.isoformat()
     log.info("=== DAILY MODE: %s ===", target)
 
     feeds = json.loads(FEEDS_FILE.read_text())
-    # Look back 1 day for daily run
-    since = today - timedelta(days=2)
-    articles = scrape_feeds(feeds, since)[:25]
+    # Look back 3 days on Monday to catch Saturday+Sunday; 1 day otherwise.
+    # Also gives a 1-day buffer if the cron was delayed.
+    lookback = 3 if today.weekday() == 0 else 1
+    since = today - timedelta(days=lookback)
+    articles, new_hashes = scrape_feeds(feeds, since)
 
-    unique_sources = len({a["source"] for a in articles})
-    if not articles or unique_sources < 3:
-        log.warning("Not enough articles/sources (%d articles, %d sources); skipping.", len(articles), unique_sources)
-        return
-    summary = batch_and_summarise(articles, api_key, target)
-    write_daily(summary, articles, target)
+    if not articles:
+        log.warning("No new articles found; writing empty placeholder.")
+        summary = "No new articles found for this date."
+        write_daily(summary, [], target)
+    else:
+        summary = batch_and_summarise(articles, api_key, target)
+        write_daily(summary, articles, target)
 
+    # Persist new hashes only after a successful write.
+    # Moving this here (vs. inside scrape_feeds) means a Gemini failure
+    # won't permanently blacklist articles that were never summarised.
+    existing = load_seen_hashes()
+    save_seen_hashes(existing | new_hashes)
     write_index()
 
 
 def run_weekly(api_key: str) -> None:
     today = date.today()
-    # Monday of current week = today (action runs on Monday)
-    monday = today - timedelta(days=today.weekday())
-    week_label = f"{monday.isocalendar().year}-W{monday.isocalendar().week:02d}"
+    # The job runs on Monday — we want the PREVIOUS week (Mon–Sun).
+    # today.weekday() == 0 on Monday, so subtracting 7 more days gives last Monday.
+    last_monday = today - timedelta(days=today.weekday() + 7)
+    week_label = f"{last_monday.isocalendar().year}-W{last_monday.isocalendar().week:02d}"
     log.info("=== WEEKLY MODE: %s ===", week_label)
 
-    # Collect daily files for the past 7 days
-    daily_dates = [(monday + timedelta(days=i)).strftime('%d-%m-%Y') for i in range(7)]
+    # Collect daily files for the 7 days of last week (Mon–Sun)
+    daily_dates = [(last_monday + timedelta(days=i)).isoformat() for i in range(7)]
     daily_files = [DATA_DIR / "daily" / f"{d}.json" for d in daily_dates
                    if (DATA_DIR / "daily" / f"{d}.json").exists()]
 
     if not daily_files:
         # Fallback: scrape directly for the whole week
-        log.info("No daily files found; scraping week directlyâ€¦")
+        log.info("No daily files found; scraping week directly…")
         feeds    = json.loads(FEEDS_FILE.read_text())
-        articles = scrape_feeds(feeds, monday)
+        articles, new_hashes = scrape_feeds(feeds, last_monday)
         summary  = batch_and_summarise(articles, api_key, week_label)
+        existing = load_seen_hashes()
+        save_seen_hashes(existing | new_hashes)
     else:
         prompt  = build_weekly_prompt(daily_files)
         summary = call_gemini(prompt, api_key)
@@ -422,16 +436,18 @@ def run_monthly(api_key: str) -> None:
     month_label = today.strftime("%Y-%m")
     log.info("=== MONTHLY MODE: %s ===", month_label)
 
-    # Collect weekly files for the past 4â€“5 weeks
+    # Collect weekly files for the past 4–5 weeks
     weekly_files = sorted((DATA_DIR / "weekly").glob("*.json"), reverse=True)[:5]
 
     if not weekly_files:
         # Fallback: scrape entire month
-        log.info("No weekly files found; scraping month directlyâ€¦")
+        log.info("No weekly files found; scraping month directly…")
         feeds      = json.loads(FEEDS_FILE.read_text())
         month_start = date(today.year, today.month, 1)
-        articles   = scrape_feeds(feeds, month_start)
+        articles, new_hashes = scrape_feeds(feeds, month_start)
         summary    = batch_and_summarise(articles, api_key, month_label)
+        existing = load_seen_hashes()
+        save_seen_hashes(existing | new_hashes)
     else:
         prompt  = build_monthly_prompt(list(weekly_files))
         summary = call_gemini(prompt, api_key)
@@ -440,7 +456,7 @@ def run_monthly(api_key: str) -> None:
     write_index()
 
 
-# â”€â”€ Entry point â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Entry point ───────────────────────────────────────────────────────────────
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="AI Research Pipeline Processor")
@@ -471,8 +487,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
