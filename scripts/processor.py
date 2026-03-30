@@ -381,13 +381,12 @@ def run_daily(api_key: str) -> None:
     since = today - timedelta(days=2)
     articles = scrape_feeds(feeds, since)[:25]
 
-    if not articles:
-        log.warning("No new articles found; writing empty placeholder.")
-        summary = "No new articles found for this date."
-        write_daily(summary, [], target)
-    else:
-        summary = batch_and_summarise(articles, api_key, target)
-        write_daily(summary, articles, target)
+    unique_sources = len({a["source"] for a in articles})
+    if not articles or unique_sources < 3:
+        log.warning("Not enough articles/sources (%d articles, %d sources); skipping.", len(articles), unique_sources)
+        return
+    summary = batch_and_summarise(articles, api_key, target)
+    write_daily(summary, articles, target)
 
     write_index()
 
