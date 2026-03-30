@@ -19,11 +19,28 @@ export default function ArchivePage() {
     return <EmptyState message="No archive entries yet. Run the daily pipeline to start building history." />;
   }
 
-  // Group by year-month
+  // Group by year-month — guard against missing/malformed date fields
   const grouped: Record<string, typeof items> = {};
   for (const item of items) {
-    const key = item.date.slice(0, 7); // "YYYY-MM"
+    const key = item.date?.slice(0, 7) || "unknown";
     (grouped[key] ??= []).push(item);
+  }
+
+  function formatItemDate(dateStr: string): string {
+    try {
+      return format(parseISO(dateStr), "EEE, MMM d");
+    } catch {
+      return dateStr || "Unknown date";
+    }
+  }
+
+  function formatMonthHeader(monthKey: string): string {
+    if (monthKey === "unknown") return "Unknown date";
+    try {
+      return format(parseISO(`${monthKey}-01`), "MMMM yyyy");
+    } catch {
+      return monthKey;
+    }
   }
 
   return (
@@ -36,7 +53,7 @@ export default function ArchivePage() {
           .map(([month, entries]) => (
             <div key={month}>
               <p className="text-xs text-slate-500 font-semibold mb-1.5 px-1">
-                {format(parseISO(`${month}-01`), "MMMM yyyy")}
+                {formatMonthHeader(month)}
               </p>
               <div className="space-y-1">
                 {entries.map((item) => {
@@ -53,7 +70,7 @@ export default function ArchivePage() {
                       )}
                     >
                       <span className="font-medium">
-                        {item.date}
+                        {formatItemDate(item.date)}
                       </span>
                       {item.article_count != null && (
                         <span className="ml-2 text-xs text-slate-600">
