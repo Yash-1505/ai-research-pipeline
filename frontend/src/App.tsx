@@ -36,7 +36,7 @@ export default function App() {
       <footer className="relative border-t border-slate-800 mt-16 py-6">
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
           <span>AI Research Pipeline — Zero cost · Fully automated</span>
-          <span>Powered by Gemini 1.5 Flash · GitHub Actions · Vercel</span>
+          <span>Powered by Gemini 2.5 Flash · GitHub Actions · Vercel</span>
         </div>
       </footer>
     </div>
