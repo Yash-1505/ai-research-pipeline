@@ -45,6 +45,11 @@ GEMINI_MODEL   = "gemini-1.5-flash"
 MAX_CHARS_BATCH = 80_000   # ~20k tokens; safe per-request ceiling
 RETRY_DELAY_S   = 65       # Wait 65s between batches to respect RPM
 
+# Archival settings
+ARCHIVE_BRANCH       = "data-archive"   # Orphan branch that receives old files
+DAILY_RETENTION_DAYS = 90              # Daily files older than this are archived
+HASH_RETENTION_DAYS  = 90             # Hashes older than this window are pruned
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def load_seen_hashes() -> set[str]:
@@ -469,17 +474,190 @@ def run_monthly(api_key: str) -> None:
     write_index()
 
 
+# ── Archive & Maintenance ─────────────────────────────────────────────────────
+
+def _git(cmd: str, cwd: Path = REPO_ROOT) -> str:
+    """Run a git command, return stdout, raise on failure."""
+    import subprocess
+    result = subprocess.run(
+        cmd, shell=True, cwd=cwd,
+        capture_output=True, text=True
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"git command failed: {cmd!r}\n{result.stderr.strip()}")
+    return result.stdout.strip()
+
+
+def archive_old_daily_files() -> list[Path]:
+    """
+    Move daily JSON files older than DAILY_RETENTION_DAYS to the ARCHIVE_BRANCH
+    orphan branch so main stays lean. Returns the list of files moved.
+
+    Strategy:
+      1. Identify stale daily files on main.
+      2. Ensure the orphan archive branch exists (create it once if not).
+      3. For each stale file: copy content to archive branch, then delete from main.
+      4. Commit both sides.
+
+    The archive branch is a true orphan — no shared history with main — so it
+    never inflates main's object store with old blobs.
+    """
+    cutoff = date.today() - timedelta(days=DAILY_RETENTION_DAYS)
+    daily_dir = DATA_DIR / "daily"
+
+    stale: list[Path] = []
+    for f in sorted(daily_dir.glob("*.json")):
+        try:
+            file_date = date.fromisoformat(f.stem)
+        except ValueError:
+            continue
+        if file_date < cutoff:
+            stale.append(f)
+
+    if not stale:
+        log.info("No daily files older than %d days — nothing to archive.", DAILY_RETENTION_DAYS)
+        return []
+
+    log.info("Archiving %d stale daily file(s) to branch '%s'…", len(stale), ARCHIVE_BRANCH)
+
+    # ── Ensure the archive branch exists ──────────────────────────────────────
+    existing_branches = _git("git branch -r")
+    archive_exists = f"origin/{ARCHIVE_BRANCH}" in existing_branches
+
+    if not archive_exists:
+        log.info("Creating orphan branch '%s'…", ARCHIVE_BRANCH)
+        # Create an orphan branch with an empty initial commit
+        _git(f"git checkout --orphan {ARCHIVE_BRANCH}")
+        _git("git rm -rf . --quiet || true")
+        _git(f'git commit --allow-empty -m "chore: initialise data-archive branch"')
+        _git(f"git push origin {ARCHIVE_BRANCH}")
+        _git("git checkout main")
+
+    # ── Copy each stale file to the archive branch ─────────────────────────────
+    import subprocess, tempfile, shutil
+
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        # Sparse checkout of archive branch into a temp dir
+        _git(f"git worktree add {tmp} {ARCHIVE_BRANCH}")
+        archive_daily = tmp_path / "data" / "daily"
+        archive_daily.mkdir(parents=True, exist_ok=True)
+
+        for f in stale:
+            shutil.copy2(f, archive_daily / f.name)
+            log.info("  → archived %s", f.name)
+
+        # Commit to archive branch via the worktree
+        _git(f"git add data/", cwd=tmp_path)
+        _git(
+            f'git commit -m "archive: daily files up to {stale[-1].stem}"',
+            cwd=tmp_path,
+        )
+        _git(f"git push origin {ARCHIVE_BRANCH}", cwd=tmp_path)
+        _git(f"git worktree remove --force {tmp}")
+
+    # ── Delete stale files from main ──────────────────────────────────────────
+    for f in stale:
+        f.unlink()
+        log.info("  ✕ removed from main: %s", f.name)
+
+    log.info("Archive complete. %d file(s) moved off main.", len(stale))
+    return stale
+
+
+def prune_seen_hashes() -> int:
+    """
+    Remove hashes from seen_hashes.json that belong to articles no longer
+    present in any daily file on main (i.e. already archived or deleted).
+
+    This prevents seen_hashes.json from growing unbounded. We keep hashes
+    for any article whose source daily file is still in data/daily/, plus
+    all hashes from the last HASH_RETENTION_DAYS regardless — this gives a
+    safe dedup window even for articles whose daily file was just archived.
+
+    Returns the number of hashes pruned.
+    """
+    existing = load_seen_hashes()
+    if not existing:
+        log.info("seen_hashes.json is empty — nothing to prune.")
+        return 0
+
+    # Collect every hash referenced by a daily file still on main
+    active_hashes: set[str] = set()
+    for f in (DATA_DIR / "daily").glob("*.json"):
+        try:
+            data = json.loads(f.read_text())
+            for art in data.get("articles", []):
+                h = art.get("hash") or article_hash(art.get("title", ""), art.get("link", ""))
+                active_hashes.add(h)
+        except Exception:
+            pass
+
+    # Also keep all hashes from the retention window — files that were just
+    # archived could re-surface if feeds repost old articles.
+    retention_cutoff = date.today() - timedelta(days=HASH_RETENTION_DAYS)
+    for f in (DATA_DIR / "daily").glob("*.json"):
+        try:
+            file_date = date.fromisoformat(f.stem)
+            if file_date >= retention_cutoff:
+                data = json.loads(f.read_text())
+                for art in data.get("articles", []):
+                    h = art.get("hash") or article_hash(art.get("title", ""), art.get("link", ""))
+                    active_hashes.add(h)
+        except Exception:
+            pass
+
+    pruned = existing - active_hashes
+    if not pruned:
+        log.info("All %d hashes are still active — nothing pruned.", len(existing))
+        return 0
+
+    save_seen_hashes(active_hashes)
+    log.info(
+        "Pruned %d stale hashes from seen_hashes.json (%d → %d).",
+        len(pruned), len(existing), len(active_hashes),
+    )
+    return len(pruned)
+
+
+def run_archive() -> None:
+    """
+    Monthly maintenance mode:
+      1. Move daily files older than DAILY_RETENTION_DAYS to the archive branch.
+      2. Prune stale hashes from seen_hashes.json.
+      3. Regenerate index.json to reflect the trimmed data/ directory.
+    Intended to run on the 1st of each month via GitHub Actions.
+    """
+    log.info("=== ARCHIVE MODE: %s ===", date.today().isoformat())
+    archived = archive_old_daily_files()
+    pruned   = prune_seen_hashes()
+    write_index()
+
+    log.info(
+        "Maintenance complete — %d file(s) archived, %d hash(es) pruned.",
+        len(archived), pruned,
+    )
+
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="AI Research Pipeline Processor")
     parser.add_argument(
         "--mode",
-        choices=["daily", "weekly", "monthly"],
+        choices=["daily", "weekly", "monthly", "archive"],
         default="daily",
         help="Run mode",
     )
     args = parser.parse_args()
+
+    # archive mode needs no API key
+    if args.mode == "archive":
+        (DATA_DIR / "daily").mkdir(parents=True, exist_ok=True)
+        (DATA_DIR / "weekly").mkdir(parents=True, exist_ok=True)
+        (DATA_DIR / "monthly").mkdir(parents=True, exist_ok=True)
+        run_archive()
+        return
 
     api_key = os.environ.get("GEMINI_API_KEY", "").strip()
     if not api_key:
