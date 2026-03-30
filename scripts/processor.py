@@ -22,7 +22,8 @@ from pathlib import Path
 from typing import Any
 
 import feedparser
-import google.generativeai as genai
+from google import genai
+from google.genai import types as genai_types
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -216,24 +217,36 @@ def build_monthly_prompt(weekly_files: list[Path]) -> str:
 
 
 def call_gemini(prompt: str, api_key: str) -> str:
-    """Call Gemini 1.5 Flash with retry on 429."""
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel(GEMINI_MODEL)
+    """Call Gemini 1.5 Flash with retry on rate-limit errors."""
+    client = genai.Client(api_key=api_key)
 
     for attempt in range(1, 4):
         try:
-            response = model.generate_content(
-                prompt,
-                generation_config=genai.GenerationConfig(
+            response = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=prompt,
+                config=genai_types.GenerateContentConfig(
                     temperature=0.3,
                     max_output_tokens=4096,
+                    safety_settings=[
+                        genai_types.SafetySetting(
+                            category="HARM_CATEGORY_HARASSMENT",
+                            threshold="BLOCK_NONE",
+                        ),
+                        genai_types.SafetySetting(
+                            category="HARM_CATEGORY_HATE_SPEECH",
+                            threshold="BLOCK_NONE",
+                        ),
+                        genai_types.SafetySetting(
+                            category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                            threshold="BLOCK_NONE",
+                        ),
+                        genai_types.SafetySetting(
+                            category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                            threshold="BLOCK_NONE",
+                        ),
+                    ],
                 ),
-                safety_settings=[
-                    {"category": "HARM_CATEGORY_HARASSMENT",        "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_HATE_SPEECH",       "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-                ],
             )
             return response.text
         except Exception as exc:
