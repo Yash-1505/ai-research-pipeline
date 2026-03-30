@@ -2,9 +2,9 @@ name: AI Research Pipeline
 
 on:
   schedule:
-    - cron: "0 7 * * *"
-    - cron: "0 8 * * 1"
-    - cron: "0 9 5 * *"
+    - cron: "0 0 * * *"
+    - cron: "30 0 * * 1"
+    - cron: "0 1 5 * *"
   workflow_dispatch:
     inputs:
       mode:
