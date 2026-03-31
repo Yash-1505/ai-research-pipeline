@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
-Zero-Cost AI Research Pipeline — processor.py
+Zero-Cost AI Research Pipeline â€” processor.py
 Scrapes RSS feeds, deduplicates, and summarizes with Gemini 1.5 Flash.
 
 Usage:
@@ -25,7 +25,7 @@ import feedparser
 from google import genai
 from google.genai import types as genai_types
 
-# ── Logging ──────────────────────────────────────────────────────────────────
+# â”€â”€ Logging â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -33,14 +33,14 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# ── Constants ─────────────────────────────────────────────────────────────────
+# â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 REPO_ROOT   = Path(__file__).parent.parent
 DATA_DIR    = REPO_ROOT / "data"
 SCRIPTS_DIR = Path(__file__).parent
 SEEN_FILE   = DATA_DIR / "seen_hashes.json"
 FEEDS_FILE  = SCRIPTS_DIR / "feeds.json"
 
-# Gemini rate-limit guard — free tier is 15 RPM / 1M TPM
+# Gemini rate-limit guard â€” free tier is 15 RPM / 1M TPM
 GEMINI_MODEL   = "gemini-1.5-flash"
 MAX_CHARS_BATCH = 80_000   # ~20k tokens; safe per-request ceiling
 RETRY_DELAY_S   = 65       # Wait 65s between batches to respect RPM
@@ -50,7 +50,7 @@ ARCHIVE_BRANCH       = "data-archive"   # Orphan branch that receives old files
 DAILY_RETENTION_DAYS = 90              # Daily files older than this are archived
 HASH_RETENTION_DAYS  = 90             # Hashes older than this window are pruned
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def load_seen_hashes() -> set[str]:
     if SEEN_FILE.exists():
@@ -91,7 +91,7 @@ def entry_text(entry) -> str:
     return content[:3000]  # cap per article
 
 
-# ── Scraping ──────────────────────────────────────────────────────────────────
+# â”€â”€ Scraping â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def scrape_feeds(feeds: list[dict], since_date: date) -> tuple[list[dict], set[str]]:
     """
@@ -157,17 +157,17 @@ def scrape_feeds(feeds: list[dict], since_date: date) -> tuple[list[dict], set[s
     return articles, new_hashes
 
 
-# ── Gemini Summarization ──────────────────────────────────────────────────────
+# â”€â”€ Gemini Summarization â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def build_daily_prompt(articles: list[dict], target_date: str) -> str:
     lines = [
         f"You are a CTO-level AI research analyst. Today is {target_date}.",
         "Below are raw articles scraped from top AI/Tech newsletters.",
         "Your task: produce a DAILY BRIEFING in clean Markdown with these sections:\n",
-        "## 🔑 Executive Summary  (3-5 bullets, each ≤ 25 words)\n",
-        "## 🚀 Top Stories  (top 5–8 stories, each with: ### Title, 2-sentence summary, source, link)\n",
-        "## 🧠 Key Trends & Signals  (bullet list of emerging patterns CTO should track)\n",
-        "## ⚡ Action Items  (what an AI-focused team should do/consider this week)\n",
+        "## ðŸ”‘ Executive Summary  (3-5 bullets, each â‰¤ 25 words)\n",
+        "## ðŸš€ Top Stories  (top 5â€“8 stories, each with: ### Title, 2-sentence summary, source, link)\n",
+        "## ðŸ§  Key Trends & Signals  (bullet list of emerging patterns CTO should track)\n",
+        "## âš¡ Action Items  (what an AI-focused team should do/consider this week)\n",
         "Rules: No fluff. No repeated information. Prioritise research breakthroughs, model releases, and business-critical AI news. Skip pure marketing puff.\n",
         "---\nARTICLES:\n",
     ]
@@ -188,12 +188,12 @@ def build_weekly_prompt(daily_files: list[Path]) -> str:
         "You are a CTO-level AI research analyst. Synthesise the following 7 DAILY BRIEFINGS into a "
         "WEEKLY DIGEST in clean Markdown.\n\n"
         "Required sections:\n"
-        "## 📅 Week in Review  (top headline: 1 sentence)\n"
-        "## 🏆 Biggest Stories of the Week  (5–10, deduplicated)\n"
-        "## 📈 Trend Analysis  (patterns that appeared multiple days — what's accelerating?)\n"
-        "## 🔬 Research Highlights  (notable papers/releases worth deep-reading)\n"
-        "## 💼 Business & Industry Moves  (funding, acquisitions, partnerships)\n"
-        "## 🗓️ What to Watch Next Week\n\n"
+        "## ðŸ“… Week in Review  (top headline: 1 sentence)\n"
+        "## ðŸ† Biggest Stories of the Week  (5â€“10, deduplicated)\n"
+        "## ðŸ“ˆ Trend Analysis  (patterns that appeared multiple days â€” what's accelerating?)\n"
+        "## ðŸ”¬ Research Highlights  (notable papers/releases worth deep-reading)\n"
+        "## ðŸ’¼ Business & Industry Moves  (funding, acquisitions, partnerships)\n"
+        "## ðŸ—“ï¸ What to Watch Next Week\n\n"
         "Rules: No repetition across sections. Merge duplicate stories into single entries. Be concise and CTO-appropriate.\n\n"
         "---\nDAILY SUMMARIES:\n\n" + "\n\n".join(combined)
     )
@@ -209,13 +209,13 @@ def build_monthly_prompt(weekly_files: list[Path]) -> str:
         "You are a CTO-level AI research analyst. Synthesise the following WEEKLY DIGESTS into a "
         "MONTHLY EXECUTIVE REPORT in clean Markdown.\n\n"
         "Required sections:\n"
-        "## 📊 Month at a Glance  (3–5 bullet TL;DR)\n"
-        "## 🎯 Major Milestones  (top 10 most important events/releases of the month)\n"
-        "## 📈 Macro Trends  (3–5 persistent trends; rate each: Accelerating / Stable / Slowing)\n"
-        "## 🔬 Research Landscape  (notable papers, model releases, benchmark shifts)\n"
-        "## 💰 Industry & Investment  (funding rounds, M&A, big-tech moves)\n"
-        "## ⚠️ Risks & Watch List  (emerging risks, regulatory signals, controversial developments)\n"
-        "## 📋 Strategic Recommendations  (what an AI-focused company should prioritise next month)\n\n"
+        "## ðŸ“Š Month at a Glance  (3â€“5 bullet TL;DR)\n"
+        "## ðŸŽ¯ Major Milestones  (top 10 most important events/releases of the month)\n"
+        "## ðŸ“ˆ Macro Trends  (3â€“5 persistent trends; rate each: Accelerating / Stable / Slowing)\n"
+        "## ðŸ”¬ Research Landscape  (notable papers, model releases, benchmark shifts)\n"
+        "## ðŸ’° Industry & Investment  (funding rounds, M&A, big-tech moves)\n"
+        "## âš ï¸ Risks & Watch List  (emerging risks, regulatory signals, controversial developments)\n"
+        "## ðŸ“‹ Strategic Recommendations  (what an AI-focused company should prioritise next month)\n\n"
         "Rules: Executive-level prose. No duplication. Cite sources where known. Be analytical, not journalistic.\n\n"
         "---\nWEEKLY DIGESTS:\n\n" + "\n\n".join(combined)
     )
@@ -258,7 +258,7 @@ def call_gemini(prompt: str, api_key: str) -> str:
             log.warning("Gemini attempt %d failed: %s", attempt, exc)
             if attempt < 3:
                 wait = RETRY_DELAY_S * attempt
-                log.info("Waiting %ds before retry…", wait)
+                log.info("Waiting %ds before retryâ€¦", wait)
                 time.sleep(wait)
     raise RuntimeError("Gemini API failed after 3 attempts")
 
@@ -283,24 +283,24 @@ def batch_and_summarise(articles: list[dict], api_key: str, target_date: str) ->
     if not batches:
         return "No new articles found for this period."
 
-    log.info("Processing %d batch(es) through Gemini…", len(batches))
+    log.info("Processing %d batch(es) through Geminiâ€¦", len(batches))
     summaries: list[str] = []
 
     for i, batch in enumerate(batches, 1):
-        log.info("Batch %d/%d (%d articles)…", i, len(batches), len(batch))
+        log.info("Batch %d/%d (%d articles)â€¦", i, len(batches), len(batch))
         prompt  = build_daily_prompt(batch, target_date)
         result  = call_gemini(prompt, api_key)
         summaries.append(result)
 
         if i < len(batches):
-            log.info("Rate-limit pause %ds…", RETRY_DELAY_S)
+            log.info("Rate-limit pause %dsâ€¦", RETRY_DELAY_S)
             time.sleep(RETRY_DELAY_S)
 
     if len(summaries) == 1:
         return summaries[0]
 
     # Merge multi-batch summaries with a second Gemini call
-    log.info("Merging %d partial summaries…", len(summaries))
+    log.info("Merging %d partial summariesâ€¦", len(summaries))
     merge_prompt = (
         "You are a CTO-level AI research analyst. Merge and deduplicate the following partial daily briefings "
         "into ONE cohesive DAILY BRIEFING. Keep all sections (Executive Summary, Top Stories, Key Trends, "
@@ -310,7 +310,7 @@ def batch_and_summarise(articles: list[dict], api_key: str, target_date: str) ->
     return call_gemini(merge_prompt, api_key)
 
 
-# ── Output Writers ────────────────────────────────────────────────────────────
+# â”€â”€ Output Writers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def write_daily(summary: str, articles: list[dict], target_date: str) -> None:
     out_dir = DATA_DIR / "daily"
@@ -328,7 +328,7 @@ def write_daily(summary: str, articles: list[dict], target_date: str) -> None:
                           "source": a["source"], "date": a["date"],
                           "tags": a["tags"]} for a in articles],
     }
-    out_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
+    out_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     log.info("Written: %s", out_file)
 
 
@@ -344,7 +344,7 @@ def write_weekly(summary: str, week_label: str, daily_dates: list[str]) -> None:
         "daily_dates":  daily_dates,
         "summary":      summary,
     }
-    out_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
+    out_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     log.info("Written: %s", out_file)
 
 
@@ -360,7 +360,7 @@ def write_monthly(summary: str, month_label: str, weekly_labels: list[str]) -> N
         "weekly_labels": weekly_labels,
         "summary":       summary,
     }
-    out_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
+    out_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     log.info("Written: %s", out_file)
 
 
@@ -390,7 +390,7 @@ def write_index() -> None:
     log.info("Index updated: %s", index_file)
 
 
-# ── Modes ─────────────────────────────────────────────────────────────────────
+# â”€â”€ Modes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def run_daily(api_key: str) -> None:
     today = date.today()
@@ -422,20 +422,20 @@ def run_daily(api_key: str) -> None:
 
 def run_weekly(api_key: str) -> None:
     today = date.today()
-    # The job runs on Monday — we want the PREVIOUS week (Mon–Sun).
+    # The job runs on Monday â€” we want the PREVIOUS week (Monâ€“Sun).
     # today.weekday() == 0 on Monday, so subtracting 7 more days gives last Monday.
     last_monday = today - timedelta(days=today.weekday() + 7)
     week_label = f"{last_monday.isocalendar().year}-W{last_monday.isocalendar().week:02d}"
     log.info("=== WEEKLY MODE: %s ===", week_label)
 
-    # Collect daily files for the 7 days of last week (Mon–Sun)
+    # Collect daily files for the 7 days of last week (Monâ€“Sun)
     daily_dates = [(last_monday + timedelta(days=i)).isoformat() for i in range(7)]
     daily_files = [DATA_DIR / "daily" / f"{d}.json" for d in daily_dates
                    if (DATA_DIR / "daily" / f"{d}.json").exists()]
 
     if not daily_files:
         # Fallback: scrape directly for the whole week
-        log.info("No daily files found; scraping week directly…")
+        log.info("No daily files found; scraping week directlyâ€¦")
         feeds    = json.loads(FEEDS_FILE.read_text())
         articles, new_hashes = scrape_feeds(feeds, last_monday)
         summary  = batch_and_summarise(articles, api_key, week_label)
@@ -454,12 +454,12 @@ def run_monthly(api_key: str) -> None:
     month_label = today.strftime("%Y-%m")
     log.info("=== MONTHLY MODE: %s ===", month_label)
 
-    # Collect weekly files for the past 4–5 weeks
+    # Collect weekly files for the past 4â€“5 weeks
     weekly_files = sorted((DATA_DIR / "weekly").glob("*.json"), reverse=True)[:5]
 
     if not weekly_files:
         # Fallback: scrape entire month
-        log.info("No weekly files found; scraping month directly…")
+        log.info("No weekly files found; scraping month directlyâ€¦")
         feeds      = json.loads(FEEDS_FILE.read_text())
         month_start = date(today.year, today.month, 1)
         articles, new_hashes = scrape_feeds(feeds, month_start)
@@ -474,7 +474,7 @@ def run_monthly(api_key: str) -> None:
     write_index()
 
 
-# ── Archive & Maintenance ─────────────────────────────────────────────────────
+# â”€â”€ Archive & Maintenance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _git(cmd: str, cwd: Path = REPO_ROOT) -> str:
     """Run a git command, return stdout, raise on failure."""
@@ -499,7 +499,7 @@ def archive_old_daily_files() -> list[Path]:
       3. For each stale file: copy content to archive branch, then delete from main.
       4. Commit both sides.
 
-    The archive branch is a true orphan — no shared history with main — so it
+    The archive branch is a true orphan â€” no shared history with main â€” so it
     never inflates main's object store with old blobs.
     """
     cutoff = date.today() - timedelta(days=DAILY_RETENTION_DAYS)
@@ -515,17 +515,17 @@ def archive_old_daily_files() -> list[Path]:
             stale.append(f)
 
     if not stale:
-        log.info("No daily files older than %d days — nothing to archive.", DAILY_RETENTION_DAYS)
+        log.info("No daily files older than %d days â€” nothing to archive.", DAILY_RETENTION_DAYS)
         return []
 
-    log.info("Archiving %d stale daily file(s) to branch '%s'…", len(stale), ARCHIVE_BRANCH)
+    log.info("Archiving %d stale daily file(s) to branch '%s'â€¦", len(stale), ARCHIVE_BRANCH)
 
-    # ── Ensure the archive branch exists ──────────────────────────────────────
+    # â”€â”€ Ensure the archive branch exists â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     existing_branches = _git("git branch -r")
     archive_exists = f"origin/{ARCHIVE_BRANCH}" in existing_branches
 
     if not archive_exists:
-        log.info("Creating orphan branch '%s'…", ARCHIVE_BRANCH)
+        log.info("Creating orphan branch '%s'â€¦", ARCHIVE_BRANCH)
         # Create an orphan branch with an empty initial commit
         _git(f"git checkout --orphan {ARCHIVE_BRANCH}")
         _git("git rm -rf . --quiet || true")
@@ -533,7 +533,7 @@ def archive_old_daily_files() -> list[Path]:
         _git(f"git push origin {ARCHIVE_BRANCH}")
         _git("git checkout main")
 
-    # ── Copy each stale file to the archive branch ─────────────────────────────
+    # â”€â”€ Copy each stale file to the archive branch â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     import subprocess, tempfile, shutil
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -545,7 +545,7 @@ def archive_old_daily_files() -> list[Path]:
 
         for f in stale:
             shutil.copy2(f, archive_daily / f.name)
-            log.info("  → archived %s", f.name)
+            log.info("  â†’ archived %s", f.name)
 
         # Commit to archive branch via the worktree
         _git(f"git add data/", cwd=tmp_path)
@@ -556,10 +556,10 @@ def archive_old_daily_files() -> list[Path]:
         _git(f"git push origin {ARCHIVE_BRANCH}", cwd=tmp_path)
         _git(f"git worktree remove --force {tmp}")
 
-    # ── Delete stale files from main ──────────────────────────────────────────
+    # â”€â”€ Delete stale files from main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     for f in stale:
         f.unlink()
-        log.info("  ✕ removed from main: %s", f.name)
+        log.info("  âœ• removed from main: %s", f.name)
 
     log.info("Archive complete. %d file(s) moved off main.", len(stale))
     return stale
@@ -572,14 +572,14 @@ def prune_seen_hashes() -> int:
 
     This prevents seen_hashes.json from growing unbounded. We keep hashes
     for any article whose source daily file is still in data/daily/, plus
-    all hashes from the last HASH_RETENTION_DAYS regardless — this gives a
+    all hashes from the last HASH_RETENTION_DAYS regardless â€” this gives a
     safe dedup window even for articles whose daily file was just archived.
 
     Returns the number of hashes pruned.
     """
     existing = load_seen_hashes()
     if not existing:
-        log.info("seen_hashes.json is empty — nothing to prune.")
+        log.info("seen_hashes.json is empty â€” nothing to prune.")
         return 0
 
     # Collect every hash referenced by a daily file still on main
@@ -593,7 +593,7 @@ def prune_seen_hashes() -> int:
         except Exception:
             pass
 
-    # Also keep all hashes from the retention window — files that were just
+    # Also keep all hashes from the retention window â€” files that were just
     # archived could re-surface if feeds repost old articles.
     retention_cutoff = date.today() - timedelta(days=HASH_RETENTION_DAYS)
     for f in (DATA_DIR / "daily").glob("*.json"):
@@ -609,12 +609,12 @@ def prune_seen_hashes() -> int:
 
     pruned = existing - active_hashes
     if not pruned:
-        log.info("All %d hashes are still active — nothing pruned.", len(existing))
+        log.info("All %d hashes are still active â€” nothing pruned.", len(existing))
         return 0
 
     save_seen_hashes(active_hashes)
     log.info(
-        "Pruned %d stale hashes from seen_hashes.json (%d → %d).",
+        "Pruned %d stale hashes from seen_hashes.json (%d â†’ %d).",
         len(pruned), len(existing), len(active_hashes),
     )
     return len(pruned)
@@ -634,12 +634,12 @@ def run_archive() -> None:
     write_index()
 
     log.info(
-        "Maintenance complete — %d file(s) archived, %d hash(es) pruned.",
+        "Maintenance complete â€” %d file(s) archived, %d hash(es) pruned.",
         len(archived), pruned,
     )
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# â”€â”€ Entry point â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="AI Research Pipeline Processor")
@@ -678,3 +678,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
