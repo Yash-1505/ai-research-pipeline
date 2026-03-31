@@ -62,6 +62,7 @@ jobs:
       - name: Run daily processor
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
         run: python scripts/processor.py --mode daily
 
       - name: Commit & push data files

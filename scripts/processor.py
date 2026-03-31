@@ -222,9 +222,22 @@ def build_monthly_prompt(weekly_files: list[Path]) -> str:
 
 
 def call_gemini(prompt: str, api_key: str) -> str:
-    """Call Gemini 1.5 Flash with retry on rate-limit errors."""
-    client = genai.Client(api_key=api_key)
+    """Call Gemini 2.0 Flash, fall back to Sarvam AI if quota exceeded."""
+    try:
+        return _call_gemini_sdk(prompt, api_key)
+    except RuntimeError as e:
+        if "429" in str(e) or "quota" in str(e).lower() or "RESOURCE_EXHAUSTED" in str(e):
+            log.warning("Gemini quota exceeded, falling back to Sarvam AI...")
+            sarvam_key = os.environ.get("SARVAM_API_KEY", "").strip()
+            if sarvam_key:
+                return _call_sarvam(prompt, sarvam_key)
+            log.error("SARVAM_API_KEY not set, cannot fallback.")
+        raise
 
+
+def _call_gemini_sdk(prompt: str, api_key: str) -> str:
+    """Primary: Gemini 2.0 Flash via google-genai SDK."""
+    client = genai.Client(api_key=api_key)
     for attempt in range(1, 4):
         try:
             response = client.models.generate_content(
@@ -232,36 +245,41 @@ def call_gemini(prompt: str, api_key: str) -> str:
                 contents=prompt,
                 config=genai_types.GenerateContentConfig(
                     temperature=0.3,
-                    max_output_tokens=4096,
-                    safety_settings=[
-                        genai_types.SafetySetting(
-                            category="HARM_CATEGORY_HARASSMENT",
-                            threshold="BLOCK_NONE",
-                        ),
-                        genai_types.SafetySetting(
-                            category="HARM_CATEGORY_HATE_SPEECH",
-                            threshold="BLOCK_NONE",
-                        ),
-                        genai_types.SafetySetting(
-                            category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                            threshold="BLOCK_NONE",
-                        ),
-                        genai_types.SafetySetting(
-                            category="HARM_CATEGORY_DANGEROUS_CONTENT",
-                            threshold="BLOCK_NONE",
-                        ),
-                    ],
+                    max_output_tokens=8192,
                 ),
             )
             return response.text
         except Exception as exc:
             log.warning("Gemini attempt %d failed: %s", attempt, exc)
             if attempt < 3:
-                wait = RETRY_DELAY_S * attempt
-                log.info("Waiting %ds before retryâ€¦", wait)
-                time.sleep(wait)
-    raise RuntimeError("Gemini API failed after 3 attempts")
+                time.sleep(RETRY_DELAY_S * attempt)
+    raise RuntimeError(f"429 Gemini API failed after 3 attempts")
 
+
+def _call_sarvam(prompt: str, api_key: str) -> str:
+    """Fallback: Sarvam AI sarvam-m via OpenAI-compatible API."""
+    import requests as req
+    url = "https://api.sarvam.ai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    body = {
+        "model": "sarvam-m",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.3,
+        "max_tokens": 8192,
+    }
+    for attempt in range(1, 4):
+        try:
+            r = req.post(url, json=body, headers=headers, timeout=120)
+            r.raise_for_status()
+            return r.json()["choices"][0]["message"]["content"]
+        except Exception as exc:
+            log.warning("Sarvam attempt %d failed: %s", attempt, exc)
+            if attempt < 3:
+                time.sleep(30 * attempt)
+    raise RuntimeError("Sarvam API also failed after 3 attempts")
 
 def batch_and_summarise(articles: list[dict], api_key: str, target_date: str) -> str:
     """Split articles into token-safe batches and concatenate summaries."""
