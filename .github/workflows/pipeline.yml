@@ -4,11 +4,11 @@ on:
   # ── Scheduled triggers ────────────────────────────────────────────────────
   schedule:
     # Daily digest  — every day at 07:00 UTC
-    - cron: "0 7 * * *"
+    - cron: "0 0 * * *"
     # Weekly digest — every Monday at 08:00 UTC
-    - cron: "0 8 * * 1"
+    - cron: "30 0 * * 1"
     # Monthly report — 5th of each month at 09:00 UTC
-    - cron: "0 9 5 * *"
+    - cron: "0 1 5 * *"
     # Archive & prune — 1st of each month at 06:00 UTC (before daily)
     - cron: "0 6 1 * *"
 
