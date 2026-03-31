@@ -54,7 +54,7 @@ HASH_RETENTION_DAYS  = 90             # Hashes older than this window are pruned
 
 def load_seen_hashes() -> set[str]:
     if SEEN_FILE.exists():
-        return set(json.loads(SEEN_FILE.read_text()))
+        return set(json.loads(SEEN_FILE.read_text(encoding="utf-8-sig")))
     return set()
 
 
@@ -678,4 +678,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 
