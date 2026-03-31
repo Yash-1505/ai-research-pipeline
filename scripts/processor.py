@@ -277,9 +277,10 @@ def _call_sarvam(prompt: str, api_key: str) -> str:
             return r.json()["choices"][0]["message"]["content"]
         except Exception as exc:
             log.warning("Sarvam attempt %d failed: %s", attempt, exc)
+            if hasattr(exc, 'response') and exc.response is not None:
+                log.warning("Sarvam response body: %s", exc.response.text)
             if attempt < 3:
                 time.sleep(30 * attempt)
-    raise RuntimeError("Sarvam API also failed after 3 attempts")
 
 def batch_and_summarise(articles: list[dict], api_key: str, target_date: str) -> str:
     """Split articles into token-safe batches and concatenate summaries."""
