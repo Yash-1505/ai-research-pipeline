@@ -266,9 +266,9 @@ def _call_sarvam(prompt: str, api_key: str) -> str:
     }
     body = {
         "model": "sarvam-m",
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": [{"role": "user", "content": prompt[:12000]}],
         "temperature": 0.3,
-        "max_tokens": 8192,
+        "max_tokens": 4096,
     }
     for attempt in range(1, 4):
         try:
