@@ -3,11 +3,11 @@ name: AI Research Pipeline
 on:
   # ── Scheduled triggers ────────────────────────────────────────────────────
   schedule:
-    # Daily digest  — every day at 07:00 UTC
+    # Daily digest — every day at 00:00 UTC
     - cron: "0 0 * * *"
-    # Weekly digest — every Monday at 08:00 UTC
+    # Weekly digest — every Monday at 00:30 UTC
     - cron: "30 0 * * 1"
-    # Monthly report — 5th of each month at 09:00 UTC
+    # Monthly report — 5th of each month at 01:00 UTC
     - cron: "0 1 5 * *"
     # Archive & prune — 1st of each month at 06:00 UTC (before daily)
     - cron: "0 6 1 * *"
@@ -26,7 +26,7 @@ on:
           - monthly
           - archive
 
-# ── Permissions: needed to push data files back to repo ──────────────────────
+# ── Permissions: needed to push data files back to repo ───────────────────────
 permissions:
   contents: write
 
@@ -37,9 +37,9 @@ jobs:
   daily-digest:
     name: "📰 Daily Digest"
     runs-on: ubuntu-latest
-    # Only on daily cron OR manual daily trigger
+    # FIX: condition string now matches the actual cron "0 0 * * *" above
     if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 7 * * *') ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 0 * * *') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'daily')
 
     steps:
@@ -67,7 +67,7 @@ jobs:
 
       - name: Commit & push data files
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
           git diff --staged --quiet || git commit -m "chore(data): daily digest $(date -u +%Y-%m-%d)"
@@ -79,8 +79,9 @@ jobs:
   weekly-digest:
     name: "📅 Weekly Digest"
     runs-on: ubuntu-latest
+    # FIX: condition string now matches the actual cron "30 0 * * 1" above
     if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 8 * * 1') ||
+      (github.event_name == 'schedule' && github.event.schedule == '30 0 * * 1') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'weekly')
 
     steps:
@@ -107,7 +108,7 @@ jobs:
 
       - name: Commit & push data files
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
           git diff --staged --quiet || git commit -m "chore(data): weekly digest $(date -u +%Y-W%V)"
@@ -119,8 +120,9 @@ jobs:
   monthly-report:
     name: "📊 Monthly Report"
     runs-on: ubuntu-latest
+    # FIX: condition string now matches the actual cron "0 1 5 * *" above
     if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 9 5 * *') ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 1 5 * *') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'monthly')
 
     steps:
@@ -147,18 +149,19 @@ jobs:
 
       - name: Commit & push data files
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
           git diff --staged --quiet || git commit -m "chore(data): monthly report $(date -u +%Y-%m)"
           git push
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # JOB 5 — Monthly archive & hash prune (runs on the 1st of each month)
+  # JOB 4 — Monthly archive & hash prune (runs on the 1st of each month)
   # ═══════════════════════════════════════════════════════════════════════════
   archive-and-prune:
     name: "🗄️ Archive & Prune"
     runs-on: ubuntu-latest
+    # cron string "0 6 1 * *" is unambiguous — no overlap with other jobs
     if: |
       (github.event_name == 'schedule' && github.event.schedule == '0 6 1 * *') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'archive')
@@ -172,7 +175,7 @@ jobs:
 
       - name: Configure git identity
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Fetch all remote branches (needed to detect archive branch)
@@ -189,6 +192,9 @@ jobs:
         run: pip install -r scripts/requirements.txt
 
       - name: Run archive & prune
+        # FIX: pass GEMINI_API_KEY in case archive mode needs it
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/processor.py --mode archive
 
       - name: Commit & push pruned data to main
@@ -198,7 +204,7 @@ jobs:
           git push
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # JOB 4 — Deploy frontend to Vercel (runs after any data push to main)
+  # JOB 5 — Deploy frontend to Vercel (runs after any data push to main)
   # ═══════════════════════════════════════════════════════════════════════════
   deploy:
     name: "🚀 Deploy to Vercel"
@@ -216,8 +222,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          ref: main        # Always pull the latest commit — not the trigger SHA.
-          fetch-depth: 1   # The digest jobs push new data/ files; we need those.
+          ref: main       # Always pull the latest commit — not the trigger SHA.
+          fetch-depth: 1  # The digest jobs push new data/ files; we need those.
 
       - name: Set up Node 20
         uses: actions/setup-node@v4
@@ -234,13 +240,13 @@ jobs:
         working-directory: frontend
         run: npm run build
         env:
-          VITE_DATA_BASE_URL: ""   # Relative paths — works on Vercel
+          VITE_DATA_BASE_URL: ""  # Relative paths — works on Vercel
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
         with:
-          vercel-token:   ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id:  ${{ secrets.VERCEL_ORG_ID }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: frontend
           vercel-args: "--prod"
