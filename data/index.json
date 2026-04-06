@@ -19,6 +19,12 @@
       "article_count": 1
     },
     {
+      "file": "data/daily/2026-04-06.json",
+      "label": "2026-04-06",
+      "date": "2026-04-06",
+      "article_count": 5
+    },
+    {
       "file": "data/daily/2026-04-05.json",
       "label": "2026-04-05",
       "date": "2026-04-05",
@@ -65,5 +71,5 @@
       "article_count": null
     }
   ],
-  "last_updated": "2026-04-05T11:35:04.857976Z"
+  "last_updated": "2026-04-06T02:03:10.320570Z"
 }
