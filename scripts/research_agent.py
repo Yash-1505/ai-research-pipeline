@@ -9,15 +9,17 @@ def run_pipeline():
     freq = os.environ.get("RESEARCH_FREQUENCY", "daily")
     
     prompts = {
-        "daily": "Perform a scan of the last 24 hours of AI developments. Focus on breaking news, repository updates, and model releases.",
-        "weekly": "Analyze the past week of AI research papers and major framework releases. Summarize key trends and breakthroughs.",
-        "monthly": "Conduct a deep-dive report on the month's AI evolution. Include industry shifts and SOTA model benchmarks."
+        "daily": "Scan the last 24 hours of AI developments. Focus on breaking news and GitHub repo updates.",
+        "weekly": "Analyze the past week of AI research papers and major framework releases. Identify 3 major trends.",
+        "monthly": "Deep-dive report on this month's AI evolution. Include industry shifts and SOTA model benchmarks."
     }
     
+    # Using the correct stable agent name for 2026
     interaction = client.interactions.create(
         input=prompts[freq],
-        agent='deep-research-pro-preview-04-2026',
-        background=True
+        agent='deep-research-pro-preview-12-2025',
+        background=True,
+        config={'store': True}
     )
     
     while True:
@@ -26,27 +28,29 @@ def run_pipeline():
             report_text = interaction.outputs[-1].text
             break
         elif interaction.status == "failed":
-            raise Exception("Research agent failed")
+            raise Exception(f"Research agent failed: {interaction.error}")
         time.sleep(30)
 
+    # Use Gemini 3.1 Flash for efficient summarization and JSON conversion
     summary_prompt = (
-        f"Convert this {freq} research into Markdown and a JSON object. "
-        "The JSON must have keys: 'title', 'timestamp', 'summary', 'key_takeaways', 'sources'.\n\n"
-        f"Research Content: {report_text}"
+        f"Format this {freq} research into a Markdown report and a JSON object. "
+        "JSON keys: 'title', 'timestamp', 'summary', 'key_takeaways', 'sources'.\n\n"
+        f"Content: {report_text}"
     )
     
     response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-3.1-flash",
         contents=summary_prompt
     )
     
     raw_output = response.text
     try:
+        # Extract content between markdown tags
         md_content = raw_output.split("```json")[0].replace("```markdown", "").strip()
         json_str = raw_output.split("```json")[1].split("```")[0].strip()
-    except IndexError:
+    except (IndexError, ValueError):
         md_content = raw_output
-        json_str = json.dumps({"error": "Failed to parse structured JSON"})
+        json_str = json.dumps({"error": "JSON parsing failed", "raw": raw_output})
     
     now = datetime.now()
     path = f"archive/{now.year}/{now.strftime('%m')}/{freq}"
