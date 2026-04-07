@@ -2,8 +2,11 @@ name: AI Research Pipeline
 
 on:
   schedule:
+    # Daily at 05:30 IST (00:00 UTC)
     - cron: '0 0 * * *'
+    # Weekly on Saturdays at 05:30 IST (00:00 UTC)
     - cron: '0 0 * * 6'
+    # Monthly on the 5th at 05:30 IST (00:00 UTC)
     - cron: '0 0 5 * *'
   workflow_dispatch:
     inputs:
@@ -20,6 +23,8 @@ on:
 jobs:
   research:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -30,8 +35,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install Dependencies
-        run: |
-          pip install google-genai
+        run: pip install google-genai
 
       - name: Determine Frequency
         id: freq
