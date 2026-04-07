@@ -1,252 +1,61 @@
 name: AI Research Pipeline
 
 on:
-  # ── Scheduled triggers ────────────────────────────────────────────────────
   schedule:
-    # Daily digest — every day at 00:00 UTC
-    - cron: "0 0 * * *"
-    # Weekly digest — every Monday at 00:30 UTC
-    - cron: "30 0 * * 1"
-    # Monthly report — 5th of each month at 01:00 UTC
-    - cron: "0 1 5 * *"
-    # Archive & prune — 1st of each month at 06:00 UTC (before daily)
-    - cron: "0 6 1 * *"
-
-  # ── Manual trigger (for testing) ─────────────────────────────────────────
+    - cron: '0 0 * * *'
+    - cron: '0 0 * * 6'
+    - cron: '0 0 5 * *'
   workflow_dispatch:
     inputs:
-      mode:
-        description: "Run mode"
+      frequency:
+        description: 'Manual Trigger Frequency'
         required: true
-        default: "daily"
+        default: 'daily'
         type: choice
         options:
           - daily
           - weekly
           - monthly
-          - archive
-
-# ── Permissions: needed to push data files back to repo ───────────────────────
-permissions:
-  contents: write
 
 jobs:
-  # ═══════════════════════════════════════════════════════════════════════════
-  # JOB 1 — Daily digest (runs every day)
-  # ═══════════════════════════════════════════════════════════════════════════
-  daily-digest:
-    name: "📰 Daily Digest"
+  research:
     runs-on: ubuntu-latest
-    # FIX: condition string now matches the actual cron "0 0 * * *" above
-    if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 0 * * *') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'daily')
-
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
 
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-          cache: "pip"
-          cache-dependency-path: scripts/requirements.txt
+          python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install -r scripts/requirements.txt
+      - name: Install Dependencies
+        run: |
+          pip install google-genai
 
-      - name: Run daily processor
+      - name: Determine Frequency
+        id: freq
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "type=${{ github.event.inputs.frequency }}" >> $GITHUB_OUTPUT
+          elif [ "$(date +%d)" == "05" ]; then
+            echo "type=monthly" >> $GITHUB_OUTPUT
+          elif [ "$(date +%u)" == "6" ]; then
+            echo "type=weekly" >> $GITHUB_OUTPUT
+          else
+            echo "type=daily" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Research Agent
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
-        run: python scripts/processor.py --mode daily
+          RESEARCH_FREQUENCY: ${{ steps.freq.outputs.type }}
+        run: python scripts/research_agent.py
 
-      - name: Commit & push data files
+      - name: Commit and Push Results
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/
-          git diff --staged --quiet || git commit -m "chore(data): daily digest $(date -u +%Y-%m-%d)"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add archive/
+          git commit -m "Archive: ${{ steps.freq.outputs.type }} update $(date +'%Y-%m-%d')" || exit 0
           git push
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # JOB 2 — Weekly digest (runs every Monday)
-  # ═══════════════════════════════════════════════════════════════════════════
-  weekly-digest:
-    name: "📅 Weekly Digest"
-    runs-on: ubuntu-latest
-    # FIX: condition string now matches the actual cron "30 0 * * 1" above
-    if: |
-      (github.event_name == 'schedule' && github.event.schedule == '30 0 * * 1') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'weekly')
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
-          cache-dependency-path: scripts/requirements.txt
-
-      - name: Install dependencies
-        run: pip install -r scripts/requirements.txt
-
-      - name: Run weekly processor
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/processor.py --mode weekly
-
-      - name: Commit & push data files
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/
-          git diff --staged --quiet || git commit -m "chore(data): weekly digest $(date -u +%Y-W%V)"
-          git push
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # JOB 3 — Monthly report (runs on the 5th)
-  # ═══════════════════════════════════════════════════════════════════════════
-  monthly-report:
-    name: "📊 Monthly Report"
-    runs-on: ubuntu-latest
-    # FIX: condition string now matches the actual cron "0 1 5 * *" above
-    if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 1 5 * *') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'monthly')
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
-          cache-dependency-path: scripts/requirements.txt
-
-      - name: Install dependencies
-        run: pip install -r scripts/requirements.txt
-
-      - name: Run monthly processor
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/processor.py --mode monthly
-
-      - name: Commit & push data files
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/
-          git diff --staged --quiet || git commit -m "chore(data): monthly report $(date -u +%Y-%m)"
-          git push
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # JOB 4 — Monthly archive & hash prune (runs on the 1st of each month)
-  # ═══════════════════════════════════════════════════════════════════════════
-  archive-and-prune:
-    name: "🗄️ Archive & Prune"
-    runs-on: ubuntu-latest
-    # cron string "0 6 1 * *" is unambiguous — no overlap with other jobs
-    if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 6 1 * *') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'archive')
-
-    steps:
-      - name: Checkout repo (full history needed for worktree)
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - name: Configure git identity
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Fetch all remote branches (needed to detect archive branch)
-        run: git fetch --all
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
-          cache-dependency-path: scripts/requirements.txt
-
-      - name: Install dependencies
-        run: pip install -r scripts/requirements.txt
-
-      - name: Run archive & prune
-        # FIX: pass GEMINI_API_KEY in case archive mode needs it
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/processor.py --mode archive
-
-      - name: Commit & push pruned data to main
-        run: |
-          git add data/
-          git diff --staged --quiet || git commit -m "chore(archive): prune data older than 90 days $(date -u +%Y-%m-%d)"
-          git push
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # JOB 5 — Deploy frontend to Vercel (runs after any data push to main)
-  # ═══════════════════════════════════════════════════════════════════════════
-  deploy:
-    name: "🚀 Deploy to Vercel"
-    runs-on: ubuntu-latest
-    needs: [daily-digest, weekly-digest, monthly-report, archive-and-prune]
-    # Run if at least one upstream job succeeded (not all are required)
-    if: |
-      always() &&
-      (needs.daily-digest.result == 'success' ||
-       needs.weekly-digest.result == 'success' ||
-       needs.monthly-report.result == 'success' ||
-       needs.archive-and-prune.result == 'success')
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          ref: main       # Always pull the latest commit — not the trigger SHA.
-          fetch-depth: 1  # The digest jobs push new data/ files; we need those.
-
-      - name: Set up Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm ci
-
-      - name: Build frontend
-        working-directory: frontend
-        run: npm run build
-        env:
-          VITE_DATA_BASE_URL: ""  # Relative paths — works on Vercel
-
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: frontend
-          vercel-args: "--prod"
