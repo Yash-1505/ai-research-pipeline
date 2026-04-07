@@ -6,20 +6,18 @@ from google import genai
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 def run_pipeline():
-    # Initialize the Gemini Client
     client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     freq = os.environ.get("RESEARCH_FREQUENCY", "daily")
     
-    # 2026 Optimized Prompts
     prompts = {
-        "daily": "Perform a high-speed scan of AI news from the last 24 hours. Focus on model weights, GitHub commits, and ecosystem shifts.",
-        "weekly": "Analyze the past 7 days of AI research. Identify the 3 most significant papers and their practical implications.",
-        "monthly": "Comprehensive monthly AI state-of-the-union. Benchmarks, industry consolidation, and SOTA leaderboards."
+        "daily": "Perform a rapid scan of the last 24 hours of AI developments. Focus on model releases and major GitHub updates.",
+        "weekly": "Analyze the past week of AI research papers and framework updates. Identify the 3 most significant shifts.",
+        "monthly": "Comprehensive monthly AI state-of-the-union. Include benchmarks, industry consolidation, and SOTA leaderboards."
     }
     
-    print(f"🚀 Starting {freq} research using Gemini 3.1 Pro Deep Research Agent...")
+    print(f"🚀 Starting {freq} research using Deep Research Agent...")
     
-    # Using the 2026 Stable Deep Research Agent
+    # Starting the Deep Research Agent (Using the 2026 stable identifier)
     interaction = client.interactions.create(
         input=prompts[freq],
         agent='deep-research-pro-preview-12-2025',
@@ -27,7 +25,7 @@ def run_pipeline():
         store=True
     )
     
-    # Poll for completion
+    # Polling for completion
     while True:
         interaction = client.interactions.get(interaction.id)
         if interaction.status == "completed":
@@ -39,7 +37,7 @@ def run_pipeline():
         print(f"⏳ Researching... Status: {interaction.status} (ID: {interaction.id})")
         time.sleep(30)
 
-    # Summarize with Gemini 3.1 Flash (Higher Quota & Better Performance)
+    # Summarize using the correct 2026 model name: gemini-3-flash
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=60))
     def generate_formatted_output(text):
         print("📝 Generating final Markdown and JSON...")
@@ -49,7 +47,7 @@ def run_pipeline():
             f"Content: {text}"
         )
         return client.models.generate_content(
-            model="gemini-3.1-flash", 
+            model="gemini-3-flash", 
             contents=summary_prompt
         )
 
@@ -57,22 +55,21 @@ def run_pipeline():
         response = generate_formatted_output(report_text)
         raw_output = response.text
         
-        # Parse output into files
         try:
+            # Separating Markdown from JSON
             md_content = raw_output.split("```json")[0].replace("```markdown", "").strip()
             json_str = raw_output.split("```json")[1].split("```")[0].strip()
-            # Validate JSON
-            json.loads(json_str) 
+            json.loads(json_str) # Verify validity
         except Exception:
             md_content = raw_output
             json_str = json.dumps({
                 "title": f"{freq.capitalize()} AI Research",
                 "timestamp": datetime.now().isoformat(),
-                "summary": "Report generated; JSON structure parsing failed.",
-                "error": "Formatting error"
+                "summary": "Report generated; JSON extraction failed.",
+                "error": "Formatting mismatch"
             })
 
-        # Archive Logic: archive/YYYY/MM/frequency/
+        # Archiving
         now = datetime.now()
         path = f"archive/{now.year}/{now.strftime('%m')}/{freq}"
         os.makedirs(path, exist_ok=True)
@@ -83,13 +80,13 @@ def run_pipeline():
         with open(f"{path}/{file_prefix}_data.json", "w") as f:
             f.write(json_str)
         
-        print(f"✅ Success! Archived to {path}")
+        print(f"✅ Success! Data archived in {path}")
 
     except Exception as e:
-        print(f"❌ Final processing failed: {e}")
-        # Save raw output as fallback so research isn't lost
-        os.makedirs("archive/failed_runs", exist_ok=True)
-        with open(f"archive/failed_runs/raw_{int(time.time())}.txt", "w") as f:
+        print(f"❌ Processing failed: {e}")
+        # Emergency save to prevent data loss
+        os.makedirs("archive/temp", exist_ok=True)
+        with open(f"archive/temp/raw_output_{int(time.time())}.txt", "w") as f:
             f.write(report_text)
         raise
 
